@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import threading
 from collections.abc import Iterator
@@ -6,7 +7,9 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "app.db"
+# DATA_DIR lets deployments (e.g. Render) point the store at a mounted disk;
+# defaults to <project>/data locally.
+DB_PATH = Path(os.getenv("DATA_DIR", Path(__file__).resolve().parent.parent / "data")) / "app.db"
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS chats (

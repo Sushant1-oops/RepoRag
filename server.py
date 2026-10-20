@@ -1,5 +1,6 @@
 
 import json
+import os
 import queue
 import threading
 from pathlib import Path
@@ -16,11 +17,17 @@ app = FastAPI(title="Repo RAG", version="2.0.0")
 
 db.init_db()
 
+# The Vercel frontend calls this API cross-origin in production, so allowed
+# origins come from the comma-separated ALLOWED_ORIGINS env var (e.g.
+# https://repo-rag.vercel.app); localhost dev origins are always kept.
+_env_origins = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173", "http://127.0.0.1:5173",  
-    ],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", *_env_origins],
     allow_methods=["*"],
     allow_headers=["*"],
 )

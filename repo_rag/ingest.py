@@ -1,6 +1,7 @@
 """Clone a GitHub repository, chunk its text files and store them in ChromaDB."""
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -11,7 +12,9 @@ from pathlib import Path
 import chromadb
 from chromadb.utils import embedding_functions
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+# DATA_DIR lets deployments (e.g. Render) point Chroma at a mounted disk;
+# defaults to <project>/data locally.
+DATA_DIR = Path(os.getenv("DATA_DIR", Path(__file__).resolve().parent.parent / "data"))
 DB_DIR = DATA_DIR / "chroma"
 REPOS_INDEX_FILE = DATA_DIR / "repos.json"
 COLLECTION_NAME = "repo_chunks"
