@@ -21,13 +21,20 @@ db.init_db()
 # origins come from the comma-separated ALLOWED_ORIGINS env var (e.g.
 # https://repo-rag.vercel.app); localhost dev origins are always kept.
 _env_origins = [
-    origin.strip()
+    origin.strip().rstrip("/")
     for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
     if origin.strip()
 ]
+
+print("CORS ALLOWED ORIGINS:", repr(_env_origins))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", *_env_origins],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        *_env_origins,
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
