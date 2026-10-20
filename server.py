@@ -17,9 +17,6 @@ app = FastAPI(title="Repo RAG", version="2.0.0")
 
 db.init_db()
 
-# The Vercel frontend calls this API cross-origin in production, so allowed
-# origins come from the comma-separated ALLOWED_ORIGINS env var (e.g.
-# https://repo-rag.vercel.app); localhost dev origins are always kept.
 _env_origins = [
     origin.strip().rstrip("/")
     for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
