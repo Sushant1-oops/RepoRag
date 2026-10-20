@@ -10,6 +10,17 @@ import type {
   Source,
 } from "./types";
 
+// Backend origin, taken from VITE_API_URL at build time. Empty in dev, so
+// requests stay relative and the Vite proxy forwards /api to localhost:8000.
+// On Vercel, set VITE_API_URL to the backend origin, e.g.
+// https://reporag-uyo0.onrender.com — changing the env var + redeploying
+// points the frontend at a different backend.
+const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
+
+function url(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
 
 async function consumeSse(
   res: Response,
@@ -48,7 +59,7 @@ async function postSse(
   onEvent: (event: string, data: unknown) => void,
   signal?: AbortSignal
 ): Promise<void> {
-  const res = await fetch(path, {
+  const res = await fetch(url(path), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -70,40 +81,40 @@ async function errorMessage(res: Response): Promise<string> {
 
 
 export async function fetchHealth(): Promise<Health> {
-  const res = await fetch("/api/health");
+  const res = await fetch(url("/api/health"));
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as Health;
 }
 
 export async function fetchRepos(): Promise<Repo[]> {
-  const res = await fetch("/api/repos");
+  const res = await fetch(url("/api/repos"));
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as Repo[];
 }
 
 export async function deleteRepo(id: string): Promise<void> {
-  const res = await fetch(`/api/repos?repo=${encodeURIComponent(id)}`, {
+  const res = await fetch(url(`/api/repos?repo=${encodeURIComponent(id)}`), {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(await errorMessage(res));
 }
 
-// ---------------------------------------------------------------- chats
+
 
 export async function fetchChats(): Promise<ChatSummary[]> {
-  const res = await fetch("/api/chats");
+  const res = await fetch(url("/api/chats"));
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as ChatSummary[];
 }
 
 export async function fetchChat(id: number): Promise<ChatRecord> {
-  const res = await fetch(`/api/chats/${id}`);
+  const res = await fetch(url(`/api/chats/${id}`));
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as ChatRecord;
 }
 
 export async function deleteChat(id: number): Promise<void> {
-  const res = await fetch(`/api/chats/${id}`, { method: "DELETE" });
+  const res = await fetch(url(`/api/chats/${id}`), { method: "DELETE" });
   if (!res.ok) throw new Error(await errorMessage(res));
 }
 
@@ -119,7 +130,7 @@ export interface ChatHandlers {
 
 export interface ChatRequest {
   question: string;
-  chat_id: number | null; // null -> the server creates a new chat
+  chat_id: number | null; 
   repo: string | null;
   top_k: number;
   use_hybrid: boolean;
