@@ -4,7 +4,10 @@ from functools import lru_cache
 
 from rank_bm25 import BM25Okapi
 
-from .ingest import collection_safe_id, get_collection, load_repos_index
+from .ingest import (
+    COLLECTION_NAME, chunk_count, collection_safe_id, encode, fetch_chunks,
+    get_client, load_repos_index, repo_filter, store,
+)
 
 CANDIDATES_PER_METHOD = 24  
 RRF_K = 60                  
@@ -32,18 +35,13 @@ def _tokenize(text: str) -> list[str]:
 def _index_version() -> tuple:
     """Cheap fingerprint of the store; a change invalidates the BM25 cache."""
     repos = tuple(sorted(load_repos_index()))
-    return (get_collection().count(), repos)
+    return (chunk_count(), repos)
 
 
 @lru_cache(maxsize=8)
 def _keyword_index(safe_repo: str | None, version: tuple):
     """Build a BM25 index over the stored chunks for one repo (or all)."""
-    collection = get_collection()
-    where = {"repo": safe_repo} if safe_repo else None
-    data = collection.get(where=where, include=["documents", "metadatas"])
-    ids = list(data["ids"])
-    docs = list(data["documents"] or [])
-    metas = list(data["metadatas"] or [])
+    ids, docs, metas = fetch_chunks(safe_repo)
     tokenized = [_tokenize(doc) for doc in docs]
     if not docs or max(map(len, tokenized), default=0) == 0:
         return None, [], [], []
@@ -53,28 +51,28 @@ def _keyword_index(safe_repo: str | None, version: tuple):
 def semantic_search(
     question: str, k: int = CANDIDATES_PER_METHOD, repo: str | None = None
 ) -> list[dict]:
-    """Dense vector search over the indexed chunks (ChromaDB cosine)."""
-    collection = get_collection()
-    total = collection.count()
+    """Dense vector search over the indexed chunks (Qdrant cosine)."""
+    total = chunk_count()
     if total == 0:
         return []
-    where = {"repo": collection_safe_id(repo)} if repo else None
-    result = collection.query(
-        query_texts=[question], n_results=min(k, total), where=where
-    )
+    query_filter = repo_filter(collection_safe_id(repo)) if repo else None
+    vector = encode([question])[0]
+    with store() as client:
+        result = client.query_points(
+            collection_name=COLLECTION_NAME, query=vector, limit=min(k, total),
+            query_filter=query_filter, with_payload=True,
+        )
     hits = []
-    for cid, doc, meta, dist in zip(
-        result["ids"][0], result["documents"][0], result["metadatas"][0],
-        result["distances"][0],
-    ):
+    for point in result.points:
+        payload = point.payload or {}
         hits.append({
-            "id": cid,
-            "text": doc,
-            "repo": meta["repo"],
-            "file": meta["file"],
-            "start_line": meta["start_line"],
-            "end_line": meta["end_line"],
-            "semantic_score": 1 - dist,  # cosine similarity
+            "id": payload.get("chunk_id", str(point.id)),
+            "text": payload.get("text", ""),
+            "repo": payload["repo"],
+            "file": payload["file"],
+            "start_line": payload["start_line"],
+            "end_line": payload["end_line"],
+            "semantic_score": float(point.score),  # cosine similarity
             "keyword_score": None,
         })
     return hits
@@ -121,7 +119,7 @@ def neighbor_chunks(
 ) -> list[str]:
     """Texts of the adjacent chunks (same file) for richer LLM context.
 
-    Reuses the cached BM25 corpus, so this costs no extra ChromaDB calls.
+    Reuses the cached BM25 corpus, so this costs no extra Qdrant calls.
     Line ranges overlap slightly by design, so adjacency is decided by the
     nearest span strictly above/below the hit rather than exact line equality.
     """

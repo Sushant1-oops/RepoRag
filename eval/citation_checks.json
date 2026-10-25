@@ -1,0 +1,651 @@
+[
+  {
+    "qid": "q001",
+    "n_citations": 7,
+    "cited_files": [
+      "src/engine/field.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q002",
+    "n_citations": 3,
+    "cited_files": [
+      "src/engine/field.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q003",
+    "n_citations": 2,
+    "cited_files": [
+      "src/index.css"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q004",
+    "n_citations": 1,
+    "cited_files": [
+      "src/index.css"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q005",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/Ladder.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q006",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/Ladder.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q007",
+    "n_citations": 0,
+    "cited_files": [],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": false,
+    "gold_citation_rate": null
+  },
+  {
+    "qid": "q008",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/Nav.css"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q009",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/Nav.css"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q010",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/Nav.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q011",
+    "n_citations": 0,
+    "cited_files": [],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": false,
+    "gold_citation_rate": null
+  },
+  {
+    "qid": "q012",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/ui.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q013",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q014",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/NatDiagram.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q015",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/NatDiagram.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q016",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/QuickStart.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q017",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/QuickStart.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q018",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/sidebar.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q019",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/sidebar.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q020",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/sidebar.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q021",
+    "n_citations": 0,
+    "cited_files": [],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": false,
+    "gold_citation_rate": null
+  },
+  {
+    "qid": "q022",
+    "n_citations": 2,
+    "cited_files": [
+      "README.md"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q023",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/chart.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q024",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/ui/chart.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q025",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/ui/menubar.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q026",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/menubar.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q027",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/dropdown-menu.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q028",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/dropdown-menu.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q029",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/context-menu.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q030",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/context-menu.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q031",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/calendar.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q032",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/ui/calendar.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q033",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/carousel.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q034",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/carousel.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q035",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/select.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q036",
+    "n_citations": 0,
+    "cited_files": [],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": false,
+    "gold_citation_rate": null
+  },
+  {
+    "qid": "q037",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/select.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q038",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/UploadPanel.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q039",
+    "n_citations": 4,
+    "cited_files": [
+      "src/components/UploadPanel.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q040",
+    "n_citations": 1,
+    "cited_files": [
+      "src/styles.css"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q041",
+    "n_citations": 3,
+    "cited_files": [
+      "src/styles.css"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q042",
+    "n_citations": 2,
+    "cited_files": [
+      "src/styles.css"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q043",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/command.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q044",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/command.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q045",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/command.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q046",
+    "n_citations": 0,
+    "cited_files": [],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": false,
+    "gold_citation_rate": null
+  },
+  {
+    "qid": "q047",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/navigation-menu.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q048",
+    "n_citations": 2,
+    "cited_files": [
+      "src/routes/register.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q049",
+    "n_citations": 1,
+    "cited_files": [
+      "src/routes/register.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q050",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ChatPanel.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q051",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ChatPanel.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q052",
+    "n_citations": 12,
+    "cited_files": [
+      "src/components/ChatPanel.tsx",
+      "src/lib/api.ts"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 0.5
+  },
+  {
+    "qid": "q053",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/form.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q054",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/form.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q055",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/form.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q056",
+    "n_citations": 1,
+    "cited_files": [
+      "src/components/ui/alert-dialog.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q057",
+    "n_citations": 2,
+    "cited_files": [
+      "src/components/ui/alert-dialog.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q058",
+    "n_citations": 0,
+    "cited_files": [],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": false,
+    "gold_citation_rate": null
+  },
+  {
+    "qid": "q059",
+    "n_citations": 1,
+    "cited_files": [
+      "src/routes/login.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  },
+  {
+    "qid": "q060",
+    "n_citations": 2,
+    "cited_files": [
+      "src/routes/login.tsx"
+    ],
+    "valid_corpus": true,
+    "grounded_in_retrieval": true,
+    "has_gold_citation": true,
+    "gold_citation_rate": 1.0
+  }
+]

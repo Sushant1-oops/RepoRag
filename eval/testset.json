@@ -1,0 +1,851 @@
+{
+  "generated_at": "2026-10-24 21:22:39",
+  "generator_model": "openai/gpt-oss-120b",
+  "n_questions": 60,
+  "repos": [
+    "Aadarsh6__Glypha_Web",
+    "Sushant1-oops__knowledge-chat"
+  ],
+  "questions": [
+    {
+      "qid": "q001",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What does the `resize` function do when it is called (without forcing) and the window size changes?",
+      "ground_truth_answer": "It first checks if the new width and height differ enough to ignore minor mobile URL‑bar shifts; if not ignored, it updates the device‑pixel‑ratio (`dpr`), sets the canvas width and height to the window size multiplied by `dpr`, and applies a transform to the 2D context. It then recalculates `maxR`, creates a vignette radial gradient when `VIGNETTE > 0`, rebuilds glyphs, builds contacts if none exist, measures the hero element, and finally calls `renderStatic()` if the `reduced` flag is true.",
+      "relevant_files": [
+        "src/engine/field.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/engine/field.tsx:582-613:126",
+        "Aadarsh6__Glypha_Web:src/engine/field.tsx:633-654:128",
+        "Aadarsh6__Glypha_Web:src/engine/field.tsx:608-637:127"
+      ]
+    },
+    {
+      "qid": "q002",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "How does the `IntersectionObserver` (`io`) handle an element with a `data-shot` attribute when it becomes intersecting?",
+      "ground_truth_answer": "When an observed element becomes intersecting, the observer reads its `data-shot` attribute as a `ShotId`. If the id exists in the `SHOTS` map and differs from the current `shot`, it updates `shot` to `SHOTS[id]`; then, if `reduced` is true it calls `renderStatic()`, otherwise it adds a ping (`{ t: 0, r: 0 }`) to the `pings` array provided the array has fewer than three entries.",
+      "relevant_files": [
+        "src/engine/field.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/engine/field.tsx:582-613:126",
+        "Aadarsh6__Glypha_Web:src/engine/field.tsx:633-654:128",
+        "Aadarsh6__Glypha_Web:src/engine/field.tsx:608-637:127"
+      ]
+    },
+    {
+      "qid": "q003",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What background style is applied to a row with class .osrow when it is hovered?",
+      "ground_truth_answer": "When a .osrow element is hovered, the CSS rule `.osrow:hover` sets its background to `rgba(233, 236, 231, .025)`. This provides a very light translucent overlay on hover.",
+      "relevant_files": [
+        "src/index.css"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/index.css:272-293:30",
+        "Aadarsh6__Glypha_Web:src/index.css:385-405:36",
+        "Aadarsh6__Glypha_Web:src/index.css:26-47:17"
+      ]
+    },
+    {
+      "qid": "q004",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "Which CSS selector defines the font properties for table header cells inside the .ntable component?",
+      "ground_truth_answer": "The selector `.ntable th` defines the header cell style. It sets `font: 500 9.5px var(--font-mono)`, adds letter‑spacing of `.16em`, and applies the faint color variable along with left text alignment and padding.",
+      "relevant_files": [
+        "src/index.css"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/index.css:272-293:30",
+        "Aadarsh6__Glypha_Web:src/index.css:385-405:36",
+        "Aadarsh6__Glypha_Web:src/index.css:26-47:17"
+      ]
+    },
+    {
+      "qid": "q005",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What does the `rstate` function return for each rung index (1, 2, or 3) and how does it decide the returned `RState` based on the current `step` value?",
+      "ground_truth_answer": "The `rstate` function maps a rung index to an `RState` string. For rung 1 it returns `'idle'` if `step < 1`, `'trying'` if `step` is 1, and `'failed'` if `step` is 2 or more. For rung 2 it returns `'idle'` when `step < 3`, `'trying'` when `step` is 3, and `'failed'` when `step` is 4 or more. For rung 3 it returns `'idle'` if `step < 5`, `'dialing'` when `step` is 5, and `'live'` when `step` is 6 or greater.",
+      "relevant_files": [
+        "src/components/Ladder.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:152-177:50",
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:41-73:44",
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:120-139:48"
+      ]
+    },
+    {
+      "qid": "q006",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "Where is the `IntersectionObserver` that initiates the ladder animation defined, and under what condition does it call the `start()` function?",
+      "ground_truth_answer": "The observer is created inside a `useEffect` hook that runs after the component mounts, using `boxRef.current` as the target element. It observes the element with a threshold of 0.25 and, when the first entry (`es[0]`) becomes intersecting and `started.current` is still false, it sets `started.current` to true, disconnects the observer, and invokes `start()`.",
+      "relevant_files": [
+        "src/components/Ladder.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:152-177:50",
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:41-73:44",
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:120-139:48"
+      ]
+    },
+    {
+      "qid": "q007",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "How are log entries displayed in the ladder component's UI, and which CSS class is added when a log's `kind` property equals `'ok'`?",
+      "ground_truth_answer": "Log entries are rendered inside a `<div className=\"lad-log\" ...>` by mapping over the `logs` array; each entry creates a `<div>` with a `key` and a class string that always includes `ln`. If a log's `kind` is `'ok'`, the class `ln-ok` is appended; otherwise the class `ln-sys` is used.",
+      "relevant_files": [
+        "src/components/Ladder.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:152-177:50",
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:41-73:44",
+        "Aadarsh6__Glypha_Web:src/components/Ladder.tsx:120-139:48"
+      ]
+    },
+    {
+      "qid": "q008",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What does the .gn-star::after pseudo-element do and how is its animation configured?",
+      "ground_truth_answer": "The .gn-star::after pseudo-element creates a sliding gradient overlay (a shine effect) using a linear‑gradient background. It is animated with the @keyframes gn-shine, which moves the gradient from translateX(-120%) to translateX(120%) over 6 seconds with an ease‑in‑out timing, a 2‑second delay, and repeats infinitely.",
+      "relevant_files": [
+        "src/components/Nav.css"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/Nav.css:82-97:68",
+        "Aadarsh6__Glypha_Web:src/components/Nav.css:91-102:69",
+        "Aadarsh6__Glypha_Web:src/components/Nav.css:62-71:66"
+      ]
+    },
+    {
+      "qid": "q009",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "Which media query hides the .gn-star-t element and what other style changes are applied at that breakpoint?",
+      "ground_truth_answer": "The @media (max-width: 440px) query sets .gn-star-t to display: none. In the same block it also changes .gn-star-l padding to 0 11px and sets .gn-bar padding‑left to 16px.",
+      "relevant_files": [
+        "src/components/Nav.css"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/Nav.css:82-97:68",
+        "Aadarsh6__Glypha_Web:src/components/Nav.css:91-102:69",
+        "Aadarsh6__Glypha_Web:src/components/Nav.css:62-71:66"
+      ]
+    },
+    {
+      "qid": "q010",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What is the purpose of the useStars hook and how does it manage caching of the GitHub star count?",
+      "ground_truth_answer": "useStars returns the repository's star count as a number or null. It initializes its state with readCache, and on mount it fetches the GitHub API for the repository defined by REPO only if the cache is empty. When a valid stargazers_count is received, it updates the state and stores the value (with a timestamp) in localStorage under CACHE_KEY; the fetch is aborted on cleanup.",
+      "relevant_files": [
+        "src/components/Nav.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/Nav.tsx:146-174:76",
+        "Aadarsh6__Glypha_Web:src/components/Nav.tsx:25-52:71",
+        "Aadarsh6__Glypha_Web:src/components/Nav.tsx:128-151:75"
+      ]
+    },
+    {
+      "qid": "q011",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "How does the fmt function format large star counts for display in the navigation bar?",
+      "ground_truth_answer": "fmt takes a number n and, if n is at least 1,000, returns a string with a \"k\" suffix: it divides n by 1,000 and keeps one decimal place unless n is 10,000 or more, in which case it shows no decimal. For numbers below 1,000 it simply returns the number as a string.",
+      "relevant_files": [
+        "src/components/Nav.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/Nav.tsx:146-174:76",
+        "Aadarsh6__Glypha_Web:src/components/Nav.tsx:25-52:71",
+        "Aadarsh6__Glypha_Web:src/components/Nav.tsx:128-151:75"
+      ]
+    },
+    {
+      "qid": "q012",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What does the `Decode` component render when the user has reduced motion enabled?",
+      "ground_truth_answer": "When `useReducedMotion()` returns true, `Decode` initializes its output state to the original `text` and skips the animation effect. The component returns `<span ref={ref} className={className}>{reduced ? text : out}</span>`, so it directly renders the unchanged `text` without any scrambling.",
+      "relevant_files": [
+        "src/components/ui.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/ui.tsx:72-102:101",
+        "Aadarsh6__Glypha_Web:src/components/ui.tsx:100-131:102",
+        "Aadarsh6__Glypha_Web:src/components/ui.tsx:46-78:100"
+      ]
+    },
+    {
+      "qid": "q013",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "How does the `Reveal` component decide to add the \"in\" CSS class to its wrapper element?",
+      "ground_truth_answer": "`Reveal` creates an `IntersectionObserver` on the div referenced by `ref`. When an observed entry becomes intersecting, it calls `setInView(true)` and disconnects the observer. The rendered `<div>` includes the class `in` if `inView` is true or if reduced motion is enabled (`inView || reduced`).",
+      "relevant_files": [
+        "src/components/ui.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/ui.tsx:72-102:101",
+        "Aadarsh6__Glypha_Web:src/components/ui.tsx:100-131:102",
+        "Aadarsh6__Glypha_Web:src/components/ui.tsx:46-78:100"
+      ]
+    },
+    {
+      "qid": "q014",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What stroke color is applied to the relay rectangle at (222,190) for different stage values?",
+      "ground_truth_answer": "The rectangle’s stroke is GREEN when the diagram is live (stage === 5). If not live, it is BLUE when stage is exactly 4, and otherwise it uses the MUTE color for all other stages.",
+      "relevant_files": [
+        "src/components/NatDiagram.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/NatDiagram.tsx:37-69:56",
+        "Aadarsh6__Glypha_Web:src/components/NatDiagram.tsx:106-121:59",
+        "Aadarsh6__Glypha_Web:src/components/NatDiagram.tsx:87-106:58"
+      ]
+    },
+    {
+      "qid": "q015",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What SVG elements does the Nat component render and how are their positions derived from the x prop?",
+      "ground_truth_answer": "Nat returns a <g> containing a <rect> positioned at x, y=84 with width 12, height 72, filled with \"url(#brick)\" and stroked with MUTE, and a <text> element placed at x + 6, y=74, centered, with fill MUTE, font size 9, displaying the provided label.",
+      "relevant_files": [
+        "src/components/NatDiagram.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/NatDiagram.tsx:37-69:56",
+        "Aadarsh6__Glypha_Web:src/components/NatDiagram.tsx:106-121:59",
+        "Aadarsh6__Glypha_Web:src/components/NatDiagram.tsx:87-106:58"
+      ]
+    },
+    {
+      "qid": "q016",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "What JSX elements does the `QuickStart` component render for the step titled 'Install'?",
+      "ground_truth_answer": "The `QuickStart` component renders a `<Reveal>` element with class \"qs-step\" containing a `<div>` with the step number \"01\" and another `<div>` that holds an `<h3>` titled \"Install\". Inside this div it includes a paragraph describing Python 3 and pip, followed by a `<CmdLine>` component with the props `cmd=\"pip install glypha\"` and `label=\"install command\"`.",
+      "relevant_files": [
+        "src/components/QuickStart.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/QuickStart.tsx:22-36:85",
+        "Aadarsh6__Glypha_Web:src/components/QuickStart.tsx:101-132:89",
+        "Aadarsh6__Glypha_Web:src/components/QuickStart.tsx:34-61:86"
+      ]
+    },
+    {
+      "qid": "q017",
+      "repo": "Aadarsh6__Glypha_Web",
+      "question": "Which array holds the troubleshooting entries and what does the body of the entry with title 'A loud impersonation warning on reconnect' explain?",
+      "ground_truth_answer": "The `TROUBLE` constant, typed as `AccItem[]`, stores the troubleshooting entries. The body for the entry titled \"A loud impersonation warning on reconnect\" is a paragraph that states pinning is working: the peer's key no longer matches the pinned one, you should re‑verify through a trusted channel, and if the change is unexpected, treat the connection as hostile because Glypha will reject it instead of silently reconnecting.",
+      "relevant_files": [
+        "src/components/QuickStart.tsx"
+      ],
+      "source_chunk_ids": [
+        "Aadarsh6__Glypha_Web:src/components/QuickStart.tsx:22-36:85",
+        "Aadarsh6__Glypha_Web:src/components/QuickStart.tsx:101-132:89",
+        "Aadarsh6__Glypha_Web:src/components/QuickStart.tsx:34-61:86"
+      ]
+    },
+    {
+      "qid": "q018",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What props does the SidebarMenuSubButton component accept and how are they applied in its render output?",
+      "ground_truth_answer": "SidebarMenuSubButton accepts all anchor element props plus three custom props: `asChild` (boolean, default false), `size` (\"sm\" or \"md\", default \"md\"), and `isActive` (boolean). It chooses the rendered component as `Slot` when `asChild` is true, otherwise an `<a>` element, and sets data attributes `data-sidebar=\"menu-sub-button\"`, `data-size` with the provided size, and `data-active` with the isActive flag. The component also merges any supplied `className` using the `cn` utility.",
+      "relevant_files": [
+        "src/components/ui/sidebar.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:670-705:242",
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:341-391:231",
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:543-596:238"
+      ]
+    },
+    {
+      "qid": "q019",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Where is the SidebarSeparator component defined and which underlying component does it render?",
+      "ground_truth_answer": "SidebarSeparator is defined as a `React.forwardRef` that forwards its ref to the `Separator` component. It passes `data-sidebar=\"separator\"` and combines the class name `mx-2 w-auto bg-sidebar-border` with any additional `className` via the `cn` function.",
+      "relevant_files": [
+        "src/components/ui/sidebar.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:670-705:242",
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:341-391:231",
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:543-596:238"
+      ]
+    },
+    {
+      "qid": "q020",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How does the SidebarMenuButton component handle the tooltip prop based on the sidebar's collapsed state and mobile view?",
+      "ground_truth_answer": "If no `tooltip` prop is provided, SidebarMenuButton returns the button element directly. When a tooltip is present, it ensures the tooltip is an object (converting a string if necessary) and wraps the button in a `Tooltip` with a `TooltipTrigger`. The `TooltipContent` is rendered with `hidden={state !== \"collapsed\" || isMobile}`, so it only appears when the sidebar is collapsed and not on mobile devices.",
+      "relevant_files": [
+        "src/components/ui/sidebar.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:670-705:242",
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:341-391:231",
+        "Sushant1-oops__knowledge-chat:src/components/ui/sidebar.tsx:543-596:238"
+      ]
+    },
+    {
+      "qid": "q021",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which route defined in App.jsx is protected and what components does it render?",
+      "ground_truth_answer": "The /app route is marked as protected in App.jsx. It renders the AppPage component, which displays the UploadPanel and ChatPanel side by side.",
+      "relevant_files": [
+        "README.md"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:README.md:252-274:20",
+        "Sushant1-oops__knowledge-chat:README.md:225-254:19",
+        "Sushant1-oops__knowledge-chat:README.md:273-293:21"
+      ]
+    },
+    {
+      "qid": "q022",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How does the application ensure chat messages survive a page refresh, and which localStorage key is used for this purpose?",
+      "ground_truth_answer": "Chat messages are saved to the browser's localStorage under the key \"chat_messages\". By persisting them there, the messages are reloaded when the page is refreshed, preserving the chat history.",
+      "relevant_files": [
+        "README.md"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:README.md:252-274:20",
+        "Sushant1-oops__knowledge-chat:README.md:225-254:19",
+        "Sushant1-oops__knowledge-chat:README.md:273-293:21"
+      ]
+    },
+    {
+      "qid": "q023",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What does the ChartStyle component render and how does it generate CSS variables for chart colors?",
+      "ground_truth_answer": "ChartStyle returns a <style> element whose inner HTML is built from the THEMES constant. For each theme it creates a CSS rule scoped to `[data-chart=${id}]` that defines `--color-{key}` variables, using either the theme‑specific color (`itemConfig.theme[theme]`) or the fallback `itemConfig.color`. If no entries have a theme or color, the component returns null.",
+      "relevant_files": [
+        "src/components/ui/chart.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/chart.tsx:42-61:130",
+        "Sushant1-oops__knowledge-chat:src/components/ui/chart.tsx:57-101:131",
+        "Sushant1-oops__knowledge-chat:src/components/ui/chart.tsx:137-172:133"
+      ]
+    },
+    {
+      "qid": "q024",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How does ChartContainer construct the `data-chart` attribute and which classes are applied to its root div?",
+      "ground_truth_answer": "ChartContainer generates a unique ID with `React.useId()` and builds `chartId` as `chart-${id || uniqueId.replace(/:/g, \"\")}`; this value is set on the div via `data-chart={chartId}`. The div’s class list is created with `cn`, combining a long Tailwind utility string that styles Recharts elements and any `className` prop passed to the component.",
+      "relevant_files": [
+        "src/components/ui/chart.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/chart.tsx:42-61:130",
+        "Sushant1-oops__knowledge-chat:src/components/ui/chart.tsx:57-101:131",
+        "Sushant1-oops__knowledge-chat:src/components/ui/chart.tsx:137-172:133"
+      ]
+    },
+    {
+      "qid": "q025",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "In the MenubarItem component, how is the optional 'inset' prop applied to the rendered element?",
+      "ground_truth_answer": "MenubarItem forwards all props to MenubarPrimitive.Item and builds its className with the cn helper. If the 'inset' prop is truthy, the string \"pl-8\" is added to the class list, otherwise it is omitted. This adds left padding when inset is enabled.",
+      "relevant_files": [
+        "src/components/ui/menubar.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/menubar.tsx:115-143:187",
+        "Sushant1-oops__knowledge-chat:src/components/ui/menubar.tsx:97-121:186",
+        "Sushant1-oops__knowledge-chat:src/components/ui/menubar.tsx:139-170:188"
+      ]
+    },
+    {
+      "qid": "q026",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which component renders a Check icon inside a MenubarCheckboxItem, and how is the icon positioned?",
+      "ground_truth_answer": "MenubarCheckboxItem renders a <MenubarPrimitive.ItemIndicator> inside a span with classes \"absolute left-2 flex h-3.5 w-3.5 items-center justify-center\". The ItemIndicator contains a <Check className=\"h-4 w-4\"/> component, which places the check mark at the left side of the checkbox item.",
+      "relevant_files": [
+        "src/components/ui/menubar.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/menubar.tsx:115-143:187",
+        "Sushant1-oops__knowledge-chat:src/components/ui/menubar.tsx:97-121:186",
+        "Sushant1-oops__knowledge-chat:src/components/ui/menubar.tsx:139-170:188"
+      ]
+    },
+    {
+      "qid": "q027",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What CSS classes are applied to the root element of `DropdownMenuCheckboxItem` and how is the check icon incorporated in its markup?",
+      "ground_truth_answer": "`DropdownMenuCheckboxItem` applies the classes returned by `cn`, which combine the base string \"relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50\" with any `className` prop passed in. Inside the component a `<span>` with `absolute left-2 flex h-3.5 w-3.5 items-center justify-center` wraps a `DropdownMenuPrimitive.ItemIndicator` that renders a `<Check className=\"h-4 w-4\" />` icon.",
+      "relevant_files": [
+        "src/components/ui/dropdown-menu.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/dropdown-menu.tsx:118-145:168",
+        "Sushant1-oops__knowledge-chat:src/components/ui/dropdown-menu.tsx:96-122:167",
+        "Sushant1-oops__knowledge-chat:src/components/ui/dropdown-menu.tsx:167-187:170"
+      ]
+    },
+    {
+      "qid": "q028",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Where is `DropdownMenuRadioItem` defined and what value is assigned to its `displayName` property?",
+      "ground_truth_answer": "`DropdownMenuRadioItem` is defined as a `React.forwardRef` component that returns a `DropdownMenuPrimitive.RadioItem` with the same base class list as the checkbox item, and includes a span containing an `ItemIndicator` that renders a `<Circle className=\"h-2 w-2 fill-current\" />`. After its definition, `DropdownMenuRadioItem.displayName` is set to `DropdownMenuPrimitive.RadioItem.displayName`.",
+      "relevant_files": [
+        "src/components/ui/dropdown-menu.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/dropdown-menu.tsx:118-145:168",
+        "Sushant1-oops__knowledge-chat:src/components/ui/dropdown-menu.tsx:96-122:167",
+        "Sushant1-oops__knowledge-chat:src/components/ui/dropdown-menu.tsx:167-187:170"
+      ]
+    },
+    {
+      "qid": "q029",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which component renders a Check icon inside a context‑menu item, and what CSS classes are applied to that item?",
+      "ground_truth_answer": "The `ContextMenuCheckboxItem` component renders a `<Check>` icon inside a `<ContextMenuPrimitive.ItemIndicator>` that is wrapped by a `<span>` with classes `absolute left-2 flex h-3.5 w-3.5 items-center justify-center`. The `ContextMenuPrimitive.CheckboxItem` itself receives a class list built by `cn` that includes `relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50` plus any additional `className` prop.",
+      "relevant_files": [
+        "src/components/ui/context-menu.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/context-menu.tsx:114-141:153",
+        "Sushant1-oops__knowledge-chat:src/components/ui/context-menu.tsx:92-118:152",
+        "Sushant1-oops__knowledge-chat:src/components/ui/context-menu.tsx:29-54:149"
+      ]
+    },
+    {
+      "qid": "q030",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How is the `displayName` for `ContextMenuRadioItem` set, and what value does it use?",
+      "ground_truth_answer": "`ContextMenuRadioItem.displayName` is assigned after the component definition with the statement `ContextMenuRadioItem.displayName = ContextMenuPrimitive.RadioItem.displayName;`. This copies the display name from the underlying Radix `RadioItem` primitive.",
+      "relevant_files": [
+        "src/components/ui/context-menu.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/context-menu.tsx:114-141:153",
+        "Sushant1-oops__knowledge-chat:src/components/ui/context-menu.tsx:92-118:152",
+        "Sushant1-oops__knowledge-chat:src/components/ui/context-menu.tsx:29-54:149"
+      ]
+    },
+    {
+      "qid": "q031",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What is the default value of the `showOutsideDays` prop in the `Calendar` component?",
+      "ground_truth_answer": "The `Calendar` component sets `showOutsideDays` to `true` by default, as shown in its parameter list: `showOutsideDays = true`. This default is applied unless the prop is overridden when the component is used.",
+      "relevant_files": [
+        "src/components/ui/calendar.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/calendar.tsx:1-35:113",
+        "Sushant1-oops__knowledge-chat:src/components/ui/calendar.tsx:169-177:120",
+        "Sushant1-oops__knowledge-chat:src/components/ui/calendar.tsx:31-59:114"
+      ]
+    },
+    {
+      "qid": "q032",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How are the class names for the previous navigation button (`button_previous`) constructed in the `Calendar` component?",
+      "ground_truth_answer": "The `button_previous` class names are built with the `cn` utility, combining `buttonVariants({ variant: buttonVariant })`, the size and state classes `\"h-(--cell-size) w-(--cell-size) select-none p-0 aria-disabled:opacity-50\"`, and the default class name `defaultClassNames.button_previous`. This concatenation produces the final class string for the previous navigation button.",
+      "relevant_files": [
+        "src/components/ui/calendar.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/calendar.tsx:1-35:113",
+        "Sushant1-oops__knowledge-chat:src/components/ui/calendar.tsx:169-177:120",
+        "Sushant1-oops__knowledge-chat:src/components/ui/calendar.tsx:31-59:114"
+      ]
+    },
+    {
+      "qid": "q033",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What error does the useCarousel hook throw when it is used outside of a <Carousel> component?",
+      "ground_truth_answer": "It throws a new Error with the message \"useCarousel must be used within a <Carousel />\".",
+      "relevant_files": [
+        "src/components/ui/carousel.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/carousel.tsx:121-165:126",
+        "Sushant1-oops__knowledge-chat:src/components/ui/carousel.tsx:158-202:127",
+        "Sushant1-oops__knowledge-chat:src/components/ui/carousel.tsx:33-76:124"
+      ]
+    },
+    {
+      "qid": "q034",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How does the Carousel component decide whether to set the Embla carousel axis to 'x' or 'y'?",
+      "ground_truth_answer": "It passes an axis option to useEmblaCarousel based on the orientation prop: if orientation is \"horizontal\" it uses \"x\", otherwise it uses \"y\".",
+      "relevant_files": [
+        "src/components/ui/carousel.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/carousel.tsx:121-165:126",
+        "Sushant1-oops__knowledge-chat:src/components/ui/carousel.tsx:158-202:127",
+        "Sushant1-oops__knowledge-chat:src/components/ui/carousel.tsx:33-76:124"
+      ]
+    },
+    {
+      "qid": "q035",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What class names does the SelectScrollDownButton component apply and which icon does it render?",
+      "ground_truth_answer": "SelectScrollDownButton applies the classes generated by `cn(\"flex cursor-default items-center justify-center py-1\", className)`. Inside the button it renders a `<ChevronDown className=\"h-4 w-4\" />` icon.",
+      "relevant_files": [
+        "src/components/ui/select.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:53-70:210",
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:132-152:214",
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:109-138:213"
+      ]
+    },
+    {
+      "qid": "q036",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How is the SelectSeparator component implemented and what default Tailwind classes does it use?",
+      "ground_truth_answer": "SelectSeparator is a `React.forwardRef` that returns a `SelectPrimitive.Separator`. It applies the classes `cn(\"-mx-1 my-1 h-px bg-muted\", className)`, which correspond to Tailwind utilities for negative horizontal margin, vertical margin, a 1‑pixel height, and a muted background.",
+      "relevant_files": [
+        "src/components/ui/select.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:53-70:210",
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:132-152:214",
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:109-138:213"
+      ]
+    },
+    {
+      "qid": "q037",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "In the SelectContent component, which props are destructured and what default value is assigned to the position prop?",
+      "ground_truth_answer": "SelectContent destructures `className`, `children`, `position = \"popper\"`, and the rest of the props (`...props`). The `position` prop defaults to the string `\"popper\"` when not provided.",
+      "relevant_files": [
+        "src/components/ui/select.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:53-70:210",
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:132-152:214",
+        "Sushant1-oops__knowledge-chat:src/components/ui/select.tsx:109-138:213"
+      ]
+    },
+    {
+      "qid": "q038",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which MIME types and file extensions are accepted by the UploadPanel component for uploads?",
+      "ground_truth_answer": "The UploadPanel defines an ACCEPT constant that maps MIME types to allowed extensions: \"application/pdf\" → [.pdf], \"text/plain\" → [.txt], \"text/markdown\" → [.md], \"image/png\" → [.png], \"image/jpeg\" → [.jpg, .jpeg], \"image/tiff\" → [.tif, .tiff], \"image/bmp\" → [.bmp], and \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\" → [.docx].",
+      "relevant_files": [
+        "src/components/UploadPanel.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/UploadPanel.tsx:1-34:60",
+        "Sushant1-oops__knowledge-chat:src/components/UploadPanel.tsx:31-68:61",
+        "Sushant1-oops__knowledge-chat:src/components/UploadPanel.tsx:100-123:63"
+      ]
+    },
+    {
+      "qid": "q039",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How does UploadPanel automatically refresh the document list when there are pending or processing documents?",
+      "ground_truth_answer": "UploadPanel computes a hasActive flag by checking if any document in the docs state has a status of \"pending\" or \"processing\". When hasActive is true, a useEffect sets pollRef.current to a setInterval that calls the refresh function every 5000 ms; the interval is cleared when hasActive becomes false or the component unmounts.",
+      "relevant_files": [
+        "src/components/UploadPanel.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/UploadPanel.tsx:1-34:60",
+        "Sushant1-oops__knowledge-chat:src/components/UploadPanel.tsx:31-68:61",
+        "Sushant1-oops__knowledge-chat:src/components/UploadPanel.tsx:100-123:63"
+      ]
+    },
+    {
+      "qid": "q040",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What visual styles are applied to `<pre>` elements by the `chat-markdown` utility?",
+      "ground_truth_answer": "The `chat-markdown` utility sets `<pre>` elements to have a background color created with `color-mix(in oklab, var(--color-background) 80%, transparent)`, a 1 px solid border using `var(--color-border)`, a medium border radius (`var(--radius-md)`), 0.75 rem of padding, and horizontal overflow auto.",
+      "relevant_files": [
+        "src/styles.css"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/styles.css:157-182:40",
+        "Sushant1-oops__knowledge-chat:src/styles.css:30-55:36",
+        "Sushant1-oops__knowledge-chat:src/styles.css:106-161:39"
+      ]
+    },
+    {
+      "qid": "q041",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which CSS variable defines the border color used across the stylesheet and where is it referenced?",
+      "ground_truth_answer": "`--color-border` is defined as `var(--border)` and is referenced in the global `*` selector to set `border-color`, as well as in the table cell (`th, td`) borders, the blockquote left border, and the `<pre>` border within the `chat-markdown` utility.",
+      "relevant_files": [
+        "src/styles.css"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/styles.css:157-182:40",
+        "Sushant1-oops__knowledge-chat:src/styles.css:30-55:36",
+        "Sushant1-oops__knowledge-chat:src/styles.css:106-161:39"
+      ]
+    },
+    {
+      "qid": "q042",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How are table cells (`th` and `td`) styled in the `chat-markdown` utility?",
+      "ground_truth_answer": "Within the `chat-markdown` utility, `th` and `td` receive a 1 px solid border using `var(--color-border)`, padding of 0.35 rem vertically and 0.5 rem horizontally, and left-aligned text.",
+      "relevant_files": [
+        "src/styles.css"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/styles.css:157-182:40",
+        "Sushant1-oops__knowledge-chat:src/styles.css:30-55:36",
+        "Sushant1-oops__knowledge-chat:src/styles.css:106-161:39"
+      ]
+    },
+    {
+      "qid": "q043",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What props does the `CommandDialog` component accept and how does it render its children?",
+      "ground_truth_answer": "`CommandDialog` receives `DialogProps` (spread as `...props`) and renders a `Dialog` component with those props. Inside the dialog it places a `DialogContent` with `className=\"overflow-hidden p-0\"`, which contains a `Command` component that wraps the passed `children`.",
+      "relevant_files": [
+        "src/components/ui/command.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:25-47:143",
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:128-143:147",
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:45-80:144"
+      ]
+    },
+    {
+      "qid": "q044",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which component renders the searchable input field with the search icon, and what default class names are applied to the `<input>` element?",
+      "ground_truth_answer": "The `CommandInput` component (created with `React.forwardRef`) renders a `div` with `className=\"flex items-center border-b px-3\"` that includes a `Search` icon and a `CommandPrimitive.Input`. The input element receives the default classes `\"flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50\"` plus any additional `className` passed via props.",
+      "relevant_files": [
+        "src/components/ui/command.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:25-47:143",
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:128-143:147",
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:45-80:144"
+      ]
+    },
+    {
+      "qid": "q045",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How is the `CommandList` component styled, and what is its maximum height?",
+      "ground_truth_answer": "`CommandList` forwards its ref to `CommandPrimitive.List` and applies the class `\"max-h-[300px] overflow-y-auto overflow-x-hidden\"` together with any extra `className` provided. This sets the list’s maximum height to 300 px and enables vertical scrolling while hiding horizontal overflow.",
+      "relevant_files": [
+        "src/components/ui/command.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:25-47:143",
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:128-143:147",
+        "Sushant1-oops__knowledge-chat:src/components/ui/command.tsx:45-80:144"
+      ]
+    },
+    {
+      "qid": "q046",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What CSS classes are applied to the inner div of NavigationMenuIndicator, and what visual element does it create?",
+      "ground_truth_answer": "The inner div of NavigationMenuIndicator uses the classes \"relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm bg-border shadow-md\". These classes create a small square rotated 45 degrees with a rounded top‑left corner, a border background, and a shadow, which serves as the visual arrow indicator for the navigation menu.",
+      "relevant_files": [
+        "src/components/ui/navigation-menu.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/navigation-menu.tsx:90-120:195",
+        "Sushant1-oops__knowledge-chat:src/components/ui/navigation-menu.tsx:44-71:193",
+        "Sushant1-oops__knowledge-chat:src/components/ui/navigation-menu.tsx:67-94:194"
+      ]
+    },
+    {
+      "qid": "q047",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How does NavigationMenuTrigger render the ChevronDown icon and which state attribute controls its rotation?",
+      "ground_truth_answer": "NavigationMenuTrigger renders a ChevronDown component after the children with the class \"relative top-[1px] ml-1 h-3 w-3 transition duration-300 group-data-[state=open]:rotate-180\". The \"group-data-[state=open]:rotate-180\" attribute rotates the icon 180 degrees when the trigger's state is open.",
+      "relevant_files": [
+        "src/components/ui/navigation-menu.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/navigation-menu.tsx:90-120:195",
+        "Sushant1-oops__knowledge-chat:src/components/ui/navigation-menu.tsx:44-71:193",
+        "Sushant1-oops__knowledge-chat:src/components/ui/navigation-menu.tsx:67-94:194"
+      ]
+    },
+    {
+      "qid": "q048",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "In the RegisterPage component, how does the submit button indicate that a registration request is in progress?",
+      "ground_truth_answer": "The <Button> element uses a conditional: when the `loading` state is true it renders a <Loader2> icon with a spin animation, otherwise it displays the text \"Create Account\".",
+      "relevant_files": [
+        "src/routes/register.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/routes/register.tsx:61-92:89",
+        "Sushant1-oops__knowledge-chat:src/routes/register.tsx:113-133:91",
+        "Sushant1-oops__knowledge-chat:src/routes/register.tsx:1-33:87"
+      ]
+    },
+    {
+      "qid": "q049",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What meta tags are defined for the \"/register\" route and where are they specified?",
+      "ground_truth_answer": "The meta tags are defined inside the `head` function of the `createFileRoute(\"/register\")` call. They include a title, description, Open Graph title and description, Open Graph type set to \"website\", and a Twitter card of type \"summary_large_image\".",
+      "relevant_files": [
+        "src/routes/register.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/routes/register.tsx:61-92:89",
+        "Sushant1-oops__knowledge-chat:src/routes/register.tsx:113-133:91",
+        "Sushant1-oops__knowledge-chat:src/routes/register.tsx:1-33:87"
+      ]
+    },
+    {
+      "qid": "q050",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What does the loadMessages function do and how does it handle errors?",
+      "ground_truth_answer": "loadMessages reads the chat history from window.localStorage using the CHAT_KEY constant, parses the JSON into a ChatMessage array, and returns it. If the code runs on the server (window is undefined) or parsing fails, it catches the error and returns an empty array.",
+      "relevant_files": [
+        "src/components/ChatPanel.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:1-37:44",
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:100-134:47",
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:30-75:45"
+      ]
+    },
+    {
+      "qid": "q051",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which state variables are initialized in the ChatPanel component and what are their default values?",
+      "ground_truth_answer": "ChatPanel initializes five state variables: messages (default []), input (default \"\"), sending (default false), topK (default 5), and useCache (default true). It also creates two refs: sessionId (initially null) and bottomRef (initially null).",
+      "relevant_files": [
+        "src/components/ChatPanel.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:1-37:44",
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:100-134:47",
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:30-75:45"
+      ]
+    },
+    {
+      "qid": "q052",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How does the send function process a new user query and update the UI?",
+      "ground_truth_answer": "When send is called, it trims the text, aborts if empty or a request is already sending, then appends a user ChatMessage to the messages array and persists it to localStorage. It clears the input, sets sending to true, calls sendChat with session_id, query, empty meta_data_filter, top_k, and use_cache, updates sessionId with the response, and finally persists a new assistant ChatMessage containing the answer, sources, mode, and cache flag.",
+      "relevant_files": [
+        "src/components/ChatPanel.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:1-37:44",
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:100-134:47",
+        "Sushant1-oops__knowledge-chat:src/components/ChatPanel.tsx:30-75:45"
+      ]
+    },
+    {
+      "qid": "q053",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What does the `useFormField` hook return and how are its return values constructed?",
+      "ground_truth_answer": "`useFormField` retrieves the `FormFieldContext` and `FormItemContext`, and uses `getFieldState` with the field name and form state to obtain `fieldState`. It extracts the `id` from `itemContext` and returns an object containing `id`, `name`, `formItemId` (`${id}-form-item`), `formDescriptionId` (`${id}-form-item-description`), `formMessageId` (`${id}-form-item-message`), and spreads the rest of `fieldState`.",
+      "relevant_files": [
+        "src/components/ui/form.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:41-85:172",
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:1-44:171",
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:115-171:174"
+      ]
+    },
+    {
+      "qid": "q054",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Where is the `FormItem` component defined and what context does it provide to its children?",
+      "ground_truth_answer": "`FormItem` is defined in `src/components/ui/form.tsx` (lines 41‑85). It generates a unique `id` with `React.useId`, then provides this `id` via `FormItemContext.Provider` to its descendants, wrapping a `<div>` with the class `space-y-2` and forwarding any received `ref`.",
+      "relevant_files": [
+        "src/components/ui/form.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:41-85:172",
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:1-44:171",
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:115-171:174"
+      ]
+    },
+    {
+      "qid": "q055",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which component uses the `formMessageId` from `useFormField` and how does it render error messages?",
+      "ground_truth_answer": "The `FormMessage` component (defined in `src/components/ui/form.tsx` lines 115‑171) calls `useFormField` to obtain `error` and `formMessageId`. It renders a `<p>` element with `id={formMessageId}` and a destructive styling class, displaying the error message if present; otherwise it renders the provided children, and returns `null` when there is no content to show.",
+      "relevant_files": [
+        "src/components/ui/form.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:41-85:172",
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:1-44:171",
+        "Sushant1-oops__knowledge-chat:src/components/ui/form.tsx:115-171:174"
+      ]
+    },
+    {
+      "qid": "q056",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What is the purpose of the `AlertDialogOverlay` component and how does it apply styling?",
+      "ground_truth_answer": "`AlertDialogOverlay` is a React.forwardRef wrapper around `AlertDialogPrimitive.Overlay`. It adds a set of utility classes via the `cn` helper, including `fixed inset-0 z-50 bg-black/80` and several data‑attribute based animation classes, then forwards any received props and the ref to the underlying primitive.",
+      "relevant_files": [
+        "src/components/ui/alert-dialog.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:52-85:100",
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:82-115:101",
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:1-33:98"
+      ]
+    },
+    {
+      "qid": "q057",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Where is the `AlertDialogAction` component defined and which class utilities does it use?",
+      "ground_truth_answer": "`AlertDialogAction` is defined as a `React.forwardRef` that renders `AlertDialogPrimitive.Action`. It composes its `className` using `cn(buttonVariants(), className)`, applying the default button variant styles together with any additional classes passed in.",
+      "relevant_files": [
+        "src/components/ui/alert-dialog.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:52-85:100",
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:82-115:101",
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:1-33:98"
+      ]
+    },
+    {
+      "qid": "q058",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "Which component applies the `buttonVariants` with the \"outline\" variant and also adds margin classes, and what are those margin classes?",
+      "ground_truth_answer": "`AlertDialogCancel` uses `buttonVariants({ variant: \"outline\" })` and adds the margin utilities `\"mt-2 sm:mt-0\"`. It forwards the ref and other props to `AlertDialogPrimitive.Cancel` while merging these classes via the `cn` helper.",
+      "relevant_files": [
+        "src/components/ui/alert-dialog.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:52-85:100",
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:82-115:101",
+        "Sushant1-oops__knowledge-chat:src/components/ui/alert-dialog.tsx:1-33:98"
+      ]
+    },
+    {
+      "qid": "q059",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "What does the `submit` function do when the login request fails?",
+      "ground_truth_answer": "When the login request throws an error, `submit` catches it and calls `apiErrorMessage(err, \"Invalid credentials\")` to obtain a message. It then sets the component's `error` state to either the backend connection message (if the result is \"Cannot connect to backend\") or the generic \"Invalid credentials\" string. Finally, it ensures `loading` is set back to false in the `finally` block.",
+      "relevant_files": [
+        "src/routes/login.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/routes/login.tsx:60-93:84",
+        "Sushant1-oops__knowledge-chat:src/routes/login.tsx:88-119:85",
+        "Sushant1-oops__knowledge-chat:src/routes/login.tsx:29-62:83"
+      ]
+    },
+    {
+      "qid": "q060",
+      "repo": "Sushant1-oops__knowledge-chat",
+      "question": "How is password visibility toggled in the login form?",
+      "ground_truth_answer": "The component maintains a `show` state that determines the input type: `type={show ? \"text\" : \"password\"}`. A button next to the input calls `setShow(v => !v)` on click, flipping the `show` boolean. The button also displays an `Eye` icon when the password is hidden and an `EyeOff` icon when it is visible.",
+      "relevant_files": [
+        "src/routes/login.tsx"
+      ],
+      "source_chunk_ids": [
+        "Sushant1-oops__knowledge-chat:src/routes/login.tsx:60-93:84",
+        "Sushant1-oops__knowledge-chat:src/routes/login.tsx:88-119:85",
+        "Sushant1-oops__knowledge-chat:src/routes/login.tsx:29-62:83"
+      ]
+    }
+  ]
+}

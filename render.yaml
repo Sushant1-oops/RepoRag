@@ -16,6 +16,6 @@ services:
       # Set this to your Vercel domain, e.g. https://repo-rag.vercel.app
       - key: ALLOWED_ORIGINS
         sync: false
-      # Optional: point Chroma/SQLite at a mounted disk so data survives deploys.
+      # Optional: point Qdrant/SQLite at a mounted disk so data survives deploys.
       - key: DATA_DIR
         sync: false

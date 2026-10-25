@@ -3,7 +3,7 @@
 Ask any question about a GitHub repository. It clones the repo, filters out
 noise (lock files, `node_modules`, minified bundles, generated code), chunks
 the important text files, embeds them locally with sentence-transformers,
-stores them in ChromaDB, and streams grounded answers from a Groq LLM using
+stores them in Qdrant, and streams grounded answers from a Groq LLM using
 context found by **hybrid search** (BM25 keyword + vector semantic), re-ranked
 by a local **cross-encoder**. Every claim is cited as `file:line`.
 
@@ -13,7 +13,7 @@ by a local **cross-encoder**. Every claim is cited as `file:line`.
   (markdown rendering with `react-markdown` + `rehype-highlight`)
 - **Backend**: FastAPI, streaming answers over **Server-Sent Events**
 - **Embeddings**: HuggingFace `all-MiniLM-L6-v2` (local, free)
-- **Vector store**: ChromaDB (persistent, in `data/chroma`)
+- **Vector store**: Qdrant (local mode — embedded engine, persistent, in `data/qdrant`)
 - **Keyword search**: BM25 (`rank-bm25`) with a code-aware tokenizer that
   splits `snake_case` / `camelCase` identifiers
 - **Fusion**: weighted Reciprocal Rank Fusion (RRF) — vector 0.6, BM25 0.4
@@ -30,7 +30,7 @@ GitHub repo ──git clone──▶ filter ──▶ important text files only
     generated code, .env secrets, binary/large files)
 
 files ──chunker──▶ chunks (~1200 chars, 200 overlap, line-aligned)
-   chunks + metadata (repo, file, lines) ──all-MiniLM-L6-v2──▶ ChromaDB
+   chunks + metadata (repo, file, lines) ──all-MiniLM-L6-v2──▶ Qdrant
 
 question ─┬─ embed ──▶ semantic search (cosine, top 24) ─┐   (both run
           └─ tokenize ─▶ BM25 keyword search (top 24) ───┤    in parallel)
@@ -153,6 +153,59 @@ even a generation stopped mid-way keeps its partial answer.
 - The **cross-encoder** reads question + chunk together and re-orders the
   fused candidates, which consistently improves precision over pure
   bi-encoder ranking.
+
+## Evaluation
+
+[eval/](eval) holds an end-to-end harness that measures the pipeline rather
+than eyeballing it:
+
+| Phase | What it produces |
+| --- | --- |
+| `testset.json` | 60 questions LLM-generated from real indexed chunks, each with a reference answer and the source file + chunk ids as ground truth |
+| `retrieval_results.json` | top-16 hits per question with file-level Recall@k, Precision@k, MRR@k, NDCG@k (k = 4/8/16) and exact-source-chunk recall |
+| `answers.json` | full-pipeline answers (hybrid retrieve → rerank → Groq), sequential so latency is realistic, plus prompt/completion tokens |
+| `citation_checks.json` | deterministic citation checks: valid against the corpus, grounded in what was retrieved, and hitting the ground-truth file |
+| `ragas_scores.json` | Ragas `faithfulness`, `answer_relevancy`, `answer_correctness` with an LLM judge and local embeddings, plus per-metric row coverage |
+| `report.md`, `summary.json` | aggregated tables: quality, citation accuracy, p50/p95 latency per stage, token usage, failure rate |
+
+```powershell
+pip install -r requirements-eval.txt
+.venv\Scripts\python.exe eval\generate_testset.py   # once: builds testset.json
+.venv\Scripts\python.exe eval\run_eval.py           # resumable, phase checkpoints
+```
+
+- Stop the API server first: Qdrant's embedded engine takes an exclusive lock
+  on `data/qdrant`, so only one process may read it at a time.
+- Every phase is checkpointed, and answers are checkpointed per question, so a
+  run interrupted by provider rate limits resumes where it stopped
+  (`--force` recomputes everything, `--skip-ragas` skips the judge).
+- The judge is provider-configurable (`RAGAS_JUDGE_MODEL`,
+  `RAGAS_JUDGE_BASE_URL`, `RAGAS_JUDGE_KEY_ENV`) and deliberately a different
+  model family from the answering model to avoid self-preference bias.
+- Ragas fires ~15-25 short strict-JSON calls per answer, which free tiers
+  struggle with: Groq enforces an output-tokens-per-minute cap, and OpenRouter
+  `:free` routes return upstream 400/429/502 errors or reasoning-token bloat.
+  On a capped tier the scoring pass has to be fully sequential
+  (`RAGAS_BATCH=1 RAGAS_WORKERS=1`): two concurrent judge calls each reserve
+  their whole `max_tokens`, which the per-minute budget cannot cover, and Ragas
+  then reports the killed job as a `None` score. `RAGAS_JUDGE_MAX_TOKENS` sizes
+  that reservation and `RAGAS_JUDGE_JOB_TIMEOUT` raises Ragas' per-job wall
+  clock above the quota backoff. The harness waits out rate limits with the
+  retry hint the API returns, checkpoints per batch and honours
+  `RAGAS_TIME_BUDGET`, so an interrupted scoring run resumes without redoing
+  finished rows.
+- `RAGAS_METRICS` selects which metrics to score. `faithfulness` asks the judge
+  to echo every atomic claim, so its verdict runs longer than a free Groq
+  minute allows; when it cannot be scored the report says so and groundedness
+  falls back to the deterministic citation checks.
+- Ragas may cover a sample (`RAGAS_SAMPLE`); every other phase covers all
+  questions, and `report.md` prints per-metric row coverage so an average is
+  never read without its denominator.
+- Tunables: `ANSWER_ATTEMPTS`, `ANSWER_DELAY_SECONDS`, `RAGAS_MAX_CONTEXTS`,
+  `RAGAS_MAX_CONTEXT_CHARS`, `RAGAS_WORKERS`, `RAGAS_BATCH`,
+  `RAGAS_TIME_BUDGET`, `RAGAS_JUDGE_TIMEOUT`, `RAGAS_JUDGE_RETRIES`,
+  `RAGAS_JUDGE_MAX_TOKENS`, `RAGAS_JUDGE_JOB_TIMEOUT`, `RAGAS_METRICS`,
+  `RAGAS_SAMPLE`.
 
 ## Troubleshooting
 

@@ -48,9 +48,11 @@ def sse(event: str, data) -> str:
 @app.get("/api/health")
 def health():
    
+    # Loading the embedder here keeps the first question's latency down.
+    ingest.get_embedder()
     return {
         "ok": True,
-        "chunks": ingest.get_collection().count(),
+        "chunks": ingest.chunk_count(),
         "model": rag.get_model(),
     }
 

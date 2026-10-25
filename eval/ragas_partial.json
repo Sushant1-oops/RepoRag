@@ -1,0 +1,70 @@
+{
+  "judge_model": "allam-2-7b",
+  "rows": [
+    {
+      "qid": "q001",
+      "answer_relevancy": 0.8223313353,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q003",
+      "answer_relevancy": 0.9162605703,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q006",
+      "answer_relevancy": 0.6912118911,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q009",
+      "answer_relevancy": 0.5908303939,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q004",
+      "answer_relevancy": 0.6202974875,
+      "answer_correctness": 0.8550130855
+    },
+    {
+      "qid": "q007",
+      "answer_relevancy": 0.0,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q010",
+      "answer_relevancy": 0.7256907081,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q013",
+      "answer_relevancy": 0.7207641739,
+      "answer_correctness": 0.9439176662
+    },
+    {
+      "qid": "q016",
+      "answer_relevancy": 0.8355885191,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q019",
+      "answer_relevancy": 0.8641581409,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q022",
+      "answer_relevancy": 0.6141572758,
+      "answer_correctness": 0.837609477
+    },
+    {
+      "qid": "q025",
+      "answer_relevancy": 0.7589315143,
+      "answer_correctness": null
+    },
+    {
+      "qid": "q028",
+      "answer_relevancy": 0.8474854064,
+      "answer_correctness": 0.9605392134
+    }
+  ]
+}

@@ -110,15 +110,14 @@ def _neighbor_texts(hit: dict) -> list[str]:
     return [text.split("\n", 1)[-1].strip() for text in texts]
 
 
-def build_context(hits: list[dict], max_chars: int = MAX_CONTEXT_CHARS) -> str:
-    """Assemble a size-budgeted, neighbor-expanded context block.
+def _context_parts(hits: list[dict]) -> list[str]:
+    """Per-hit context blocks: header + chunk text + neighbor sub-blocks.
 
     Each hit is preceded by a header with the exact file path and line range
     the model must cite. Adjacent chunks from the same file are appended as
     numbered sub-blocks so the model sees the code around each match.
     """
     parts: list[str] = []
-    used = 0
     for i, hit in enumerate(hits, start=1):
         blocks = [
             f"[Chunk {i} | {hit['file']}:{hit['start_line']}-{hit['end_line']}]",
@@ -128,12 +127,27 @@ def build_context(hits: list[dict], max_chars: int = MAX_CONTEXT_CHARS) -> str:
             blocks.append(
                 f"[Chunk {i}.{j} | {hit['file']} — adjacent code]\n{neighbor}"
             )
-        chunk_text = "\n".join(blocks)
-        if parts and used + len(chunk_text) > max_chars:
+        parts.append("\n".join(blocks))
+    return parts
+
+
+def _budgeted_context(
+    hits: list[dict], max_chars: int = MAX_CONTEXT_CHARS
+) -> tuple[str, list[str]]:
+    """Context string plus the exact per-hit blocks that fit the budget."""
+    parts: list[str] = []
+    used = 0
+    for block in _context_parts(hits):
+        if parts and used + len(block) > max_chars:
             break  # keep the best-scoring chunks within the budget
-        parts.append(chunk_text)
-        used += len(chunk_text)
-    return "\n\n---\n\n".join(parts)
+        parts.append(block)
+        used += len(block)
+    return "\n\n---\n\n".join(parts), parts
+
+
+def build_context(hits: list[dict], max_chars: int = MAX_CONTEXT_CHARS) -> str:
+    """Assemble a size-budgeted, neighbor-expanded context block."""
+    return _budgeted_context(hits, max_chars)[0]
 
 
 def extract_citations(answer: str, hits: list[dict]) -> list[str]:
@@ -190,8 +204,9 @@ def stream_answer(
         })
         return
 
+    context, context_parts = _budgeted_context(hits)
     prompt = _history_block(history) + USER_PROMPT.format(
-        n_chunks=len(hits), context=build_context(hits), question=question
+        n_chunks=len(hits), context=context, question=question
     )
     try:
         client = get_groq_client()
@@ -204,6 +219,9 @@ def stream_answer(
             temperature=0.1,
             max_tokens=2048,
             stream=True,
+            # the groq SDK's typed create() has no stream_options param; the
+            # API supports it via extra_body and reports usage on the last chunk
+            extra_body={"stream_options": {"include_usage": True}},
         )
     except Exception as e:
         yield ("error", f"Groq request failed: {e}")
@@ -212,8 +230,11 @@ def stream_answer(
     t_generate = time.perf_counter()
     first_token_ms = None
     parts: list[str] = []
+    usage = None
     try:
         for chunk in stream:
+            if getattr(chunk, "usage", None):
+                usage = chunk.usage  # final chunk when include_usage is on
             delta = chunk.choices[0].delta.content if chunk.choices else None
             if not delta:
                 continue
@@ -232,6 +253,9 @@ def stream_answer(
         "first_token_ms": first_token_ms,
         "total_ms": int((time.perf_counter() - t0) * 1000),
         "model": get_model(),
+        "prompt_tokens": getattr(usage, "prompt_tokens", None) if usage else None,
+        "completion_tokens": getattr(usage, "completion_tokens", None) if usage else None,
+        "contexts": context_parts,  # exact blocks the model saw (used by eval)
     })
 
 

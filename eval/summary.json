@@ -1,0 +1,87 @@
+{
+  "generated_at": "2026-10-25 13:15:12",
+  "n_questions": 60,
+  "repos": [
+    "Aadarsh6__Glypha_Web",
+    "Sushant1-oops__knowledge-chat"
+  ],
+  "generator_model": "openai/gpt-oss-120b",
+  "answer_model": "openai/gpt-oss-120b",
+  "failure_rate": 0.0,
+  "retrieval": {
+    "file_level": {
+      "@4": {
+        "recall": 0.9833,
+        "precision": 0.2458,
+        "mrr": 0.9389,
+        "ndcg": 0.9504
+      },
+      "@8": {
+        "recall": 0.9833,
+        "precision": 0.1229,
+        "mrr": 0.9389,
+        "ndcg": 0.9504
+      },
+      "@16": {
+        "recall": 0.9833,
+        "precision": 0.0615,
+        "mrr": 0.9389,
+        "ndcg": 0.9504
+      }
+    },
+    "exact_chunk_recall@16": 0.9667
+  },
+  "ragas": {
+    "answer_relevancy": 0.6809,
+    "answer_correctness": 0.8993
+  },
+  "ragas_judge": "allam-2-7b",
+  "citations": {
+    "answers_with_citations": 0.9,
+    "citations_per_answer": 1.52,
+    "grounded_in_retrieval_rate": 1.0,
+    "answers_with_gold_citation": 0.9,
+    "gold_citation_rate": 0.9907
+  },
+  "reference_overlap": {
+    "n": 60,
+    "mean": 0.4105,
+    "p50": 0.39380000000000004,
+    "min": 0.0625,
+    "max": 0.7246
+  },
+  "latency": {
+    "retrieval_ms": {
+      "p50": 6352.5,
+      "p95": 33343.39999999986,
+      "mean": 16437.7
+    },
+    "first_token_ms": {
+      "p50": 831.0,
+      "p95": 1376.2999999999997,
+      "mean": 884.0
+    },
+    "total_ms": {
+      "p50": 29442.0,
+      "p95": 81039.25,
+      "mean": 39368.0
+    },
+    "retrieval_ms_warm": {
+      "p50": 1702,
+      "p95": 1859.9999999999998,
+      "mean": 1688.8
+    },
+    "total_ms_warm": {
+      "p50": 29031.0,
+      "p95": 62682.59999999998,
+      "mean": 32705.3
+    }
+  },
+  "tokens": {
+    "prompt_total": 220841,
+    "completion_total": 35871,
+    "prompt_mean": 3680.7,
+    "completion_mean": 597.9,
+    "answers_with_usage": 60
+  }
+}

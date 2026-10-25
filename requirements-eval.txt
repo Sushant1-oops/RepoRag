@@ -1,0 +1,6 @@
+# Evaluation extras - not needed to run the app itself.
+# Install with:  pip install -r requirements-eval.txt
+ragas>=0.4
+langchain-openai>=1.0
+langchain-huggingface>=0.1
+datasets>=2.19
