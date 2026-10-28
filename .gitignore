@@ -4,3 +4,7 @@ venv/
 data/
 __pycache__/
 *.pyc
+
+# AWS deploy secrets and instance metadata
+*.pem
+deploy/aws.json

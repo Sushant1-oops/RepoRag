@@ -207,6 +207,42 @@ pip install -r requirements-eval.txt
   `RAGAS_JUDGE_MAX_TOKENS`, `RAGAS_JUDGE_JOB_TIMEOUT`, `RAGAS_METRICS`,
   `RAGAS_SAMPLE`.
 
+## Deploy the backend on AWS (start/stop, not 24/7)
+
+The backend runs in Docker on a single EC2 instance. Everything persistent
+(Qdrant index, SQLite chats, repo registry) lives in `data/`, bind-mounted onto
+the instance's EBS volume — so the instance can be **stopped when idle** (you
+pay ~$2.4/month for the disk, nothing for compute) and started again with all
+data intact.
+
+Prerequisites: `aws configure` once with credentials that can create EC2
+resources, and this branch pushed to GitHub (the instance clones your remote).
+
+```powershell
+# one-time setup — key pair, security group, Ubuntu 24.04 instance + boot script
+.\deploy\aws-create.ps1                       # t3.medium in us-east-1 by default
+.\deploy\aws-start.ps1                        # first boot builds the image (~5-10 min)
+.\deploy\aws-env.ps1                          # push .env (GROQ_API_KEY) to the instance
+.\deploy\aws-upload-data.ps1                  # optional: reuse the local index/chats
+
+# day-to-day
+.\deploy\aws-start.ps1                        # boots + waits for /api/health
+.\deploy\aws-stop.ps1                         # compute billing stops, data persists
+.\deploy\aws-ssh.ps1                          # shell on the box (docker compose logs)
+```
+
+The app is served at `http://<ip>:8000` — the container serves the built
+frontend too, so it is one same-origin deployment with no CORS or TLS juggling.
+The public IP rotates on every stop/start (the scripts refresh
+`deploy/aws.json`; create with `-AllocateElasticIp` to keep one fixed IP).
+HTTPS: the browser app works over plain HTTP because it is same-origin; if you
+want the **Vercel** frontend (HTTPS) to call this backend, put Caddy with your
+domain in front — the Vercel frontend cannot call an `http://` origin directly
+(mixed content).
+
+Updating the deployed code: commit + push, then
+`ssh` in and run `git pull && docker compose -f deploy/docker-compose.yml up -d --build`.
+
 ## Troubleshooting
 
 - **Windows fresh install pulls a multi-GB CUDA torch**: install the CPU

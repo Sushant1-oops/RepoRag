@@ -1,0 +1,20 @@
+# Backend + frontend in one container, run from deploy/ so the build context
+# is the repo root. Everything stateful lives in the ./data bind mount:
+# data/qdrant (vector index), data/app.db (chats), data/repos.json (registry).
+# That mount sits on the EC2 EBS volume, so stopping the instance keeps every
+# byte and starting it again resumes exactly where things left off.
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    environment:
+      # explicit so the mount location, not the image default, wins
+      - DATA_DIR=/app/data
+    volumes:
+      - ../data:/app/data
+    restart: unless-stopped

@@ -1,0 +1,16 @@
+# build context should stay small and hold no secrets or state
+.git
+.venv
+venv
+data
+__pycache__
+**/__pycache__
+*.pyc
+.env
+.env.example
+eval
+deploy
+README.md
+render.yaml
+frontend/node_modules
+frontend/dist
