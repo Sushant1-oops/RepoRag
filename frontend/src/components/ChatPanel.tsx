@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
+import { useEffect, useRef, type ReactNode } from "react";
+import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 import { GitBranch } from "../icons";
@@ -14,6 +14,53 @@ const EXAMPLES = [
   "How is error handling done?",
 ];
 
+const CITE_RE = /【([^】\n]{1,160})】/g;
+
+// The model cites sources as 【file:lines】. Pull the labels out of the prose:
+// inline text keeps only tiny numbered markers, and the full file:line labels
+// live in the metrics footer (and open the sources panel on click).
+function collectCitations(md: string): string[] {
+  const list: string[] = [];
+  for (const m of md.matchAll(CITE_RE)) {
+    const label = m[1].trim();
+    if (!list.includes(label)) list.push(label);
+  }
+  return list;
+}
+
+function withCitationMarkers(md: string, streaming: boolean): string {
+  const cites = collectCitations(md);
+  let out = md.replace(CITE_RE, (_m, cite: string) => {
+    const label = cite.trim();
+    const n = cites.indexOf(label) + 1;
+    return `[${n}](cite://${encodeURIComponent(label)})`;
+  });
+  // hide a half-streamed citation instead of flashing raw bracket text
+  if (streaming) out = out.replace(/【[^】]*$/, "");
+  return out;
+}
+
+function CitationMarker({
+  n,
+  label,
+  onOpen,
+}: {
+  n: number;
+  label: string;
+  onOpen: (cite?: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(label)}
+      title={label}
+      className="ml-0.5 inline-flex h-[15px] min-w-[15px] items-center justify-center rounded-sm bg-zinc-200 px-1 align-super font-mono text-[9px] font-semibold leading-none text-zinc-600 transition hover:bg-zinc-900 hover:text-white"
+    >
+      {n}
+    </button>
+  );
+}
+
 interface ChatPanelProps {
   messages: ChatMessage[];
   busy: boolean;
@@ -23,7 +70,7 @@ interface ChatPanelProps {
   repos: Repo[];
   scope: string | null;
   onScopeChange: (id: string | null) => void;
-  onOpenSources: () => void;
+  onOpenSources: (cite?: string) => void;
 }
 
 function fmtMs(ms?: number): string | null {
@@ -33,10 +80,12 @@ function fmtMs(ms?: number): string | null {
 
 function MetricsFooter({
   message,
+  citations,
   onOpenSources,
 }: {
   message: ChatMessage;
-  onOpenSources: () => void;
+  citations: string[];
+  onOpenSources: (cite?: string) => void;
 }) {
   const { metrics, sources } = message;
   if (!metrics || metrics.empty) return null;
@@ -48,15 +97,19 @@ function MetricsFooter({
 
   return (
     <>
-      {metrics.citations && metrics.citations.length > 0 && (
+      {citations.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {metrics.citations.map((c) => (
-            <span
+          {citations.map((c, i) => (
+            <button
               key={c}
-              className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] text-zinc-600"
+              type="button"
+              onClick={() => onOpenSources(c)}
+              title={`Show source ${c} in the sources panel`}
+              className="flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-1.5 py-0.5 font-mono text-[10.5px] text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900"
             >
-              {c}
-            </span>
+              <span className="font-semibold text-zinc-400">{i + 1}</span>
+              <span className="max-w-[240px] truncate">{c}</span>
+            </button>
           ))}
         </div>
       )}
@@ -64,7 +117,7 @@ function MetricsFooter({
         {(sources?.length ?? 0) > 0 && (
           <button
             type="button"
-            onClick={onOpenSources}
+            onClick={() => onOpenSources()}
             className="rounded border border-zinc-200 bg-white px-2 py-0.5 font-medium text-zinc-700 transition hover:border-zinc-300"
           >
             {sources!.length} sources
@@ -88,11 +141,12 @@ function AssistantMessage({
   onOpenSources,
 }: {
   message: ChatMessage;
-  onOpenSources: () => void;
+  onOpenSources: (cite?: string) => void;
 }) {
   const { content, streaming, metrics, error } = message;
   const waiting = streaming && !content;
   const showCaret = streaming && content.length > 0;
+  const citationList = collectCitations(content);
 
   return (
     <div>
@@ -109,8 +163,27 @@ function AssistantMessage({
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeHighlight]}
+              // defaultUrlTransform strips unknown protocols like cite://,
+              // which silently downgrades citations to plain glued links
+              urlTransform={(u) =>
+                u.startsWith("cite://") ? u : defaultUrlTransform(u)
+              }
+              components={{
+                a: ({ href, children }: { href?: string; children?: ReactNode }) => {
+                  if (href?.startsWith("cite://")) {
+                    return (
+                      <CitationMarker
+                        n={Number(children)}
+                        label={decodeURIComponent(href.slice("cite://".length))}
+                        onOpen={onOpenSources}
+                      />
+                    );
+                  }
+                  return <a href={href}>{children}</a>;
+                },
+              }}
             >
-              {content}
+              {withCitationMarkers(content, !!streaming)}
             </ReactMarkdown>
             {showCaret && <span className="caret" aria-hidden />}
           </div>
@@ -124,7 +197,13 @@ function AssistantMessage({
               {error}
             </div>
           )}
-          {!streaming && <MetricsFooter message={message} onOpenSources={onOpenSources} />}
+          {!streaming && (
+            <MetricsFooter
+              message={message}
+              citations={citationList}
+              onOpenSources={onOpenSources}
+            />
+          )}
         </>
       )}
     </div>

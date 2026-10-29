@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Close } from "../icons";
 import { SectionLabel } from "./ui";
 import type { Source } from "../types";
@@ -36,10 +36,28 @@ function chunkBody(text: string): string {
   return text;
 }
 
-function SourceCard({ source }: { source: Source }) {
+function SourceCard({
+  source,
+  highlight,
+}: {
+  source: Source;
+  highlight?: string | null;
+}) {
   const [open, setOpen] = useState(false);
+  const cardRef = useRef<HTMLLIElement>(null);
+  // a citation chip was clicked: "README.md:1-21" matches source.file
+  const filePart = highlight ? highlight.split(":")[0] : null;
+  const highlighted = !!filePart && source.file === filePart;
+  useEffect(() => {
+    if (highlighted) cardRef.current?.scrollIntoView({ block: "nearest" });
+  }, [highlighted]);
   return (
-    <li className="rounded-lg border border-zinc-200 bg-white">
+    <li
+      ref={cardRef}
+      className={`rounded-lg border bg-white transition-colors ${
+        highlighted ? "border-blue-300 ring-1 ring-blue-200" : "border-zinc-200"
+      }`}
+    >
       <div className="flex items-start gap-2 p-3">
         <button
           type="button"
@@ -76,9 +94,11 @@ function SourceCard({ source }: { source: Source }) {
 
 export default function SourcesPanel({
   sources,
+  highlight,
   onClose,
 }: {
   sources: Source[];
+  highlight?: string | null;
   onClose: () => void;
 }) {
   return (
@@ -109,7 +129,7 @@ export default function SourcesPanel({
       ) : (
         <ul className="flex-1 space-y-2.5 overflow-y-auto p-3">
           {sources.map((s) => (
-            <SourceCard key={s.id} source={s} />
+            <SourceCard key={s.id} source={s} highlight={highlight} />
           ))}
         </ul>
       )}

@@ -43,13 +43,20 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [indexing, setIndexing] = useState(false);
   const [progressLines, setProgressLines] = useState<string[]>([]);
-  const [sourcesOpen, setSourcesOpen] = useState(true);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [highlightCite, setHighlightCite] = useState<string | null>(null);
   const [settings, setSettings] = useState<Settings>({
     topK: 8,
     useHybrid: true,
     useReranker: true,
   });
   const abortRef = useRef<AbortController | null>(null);
+
+  // open the sources panel, optionally highlighting the cited file
+  const openSources = useCallback((cite?: string) => {
+    setHighlightCite(cite ?? null);
+    setSourcesOpen(true);
+  }, []);
 
   // Saved conversations; the active id is mirrored in a ref so streaming
   // callbacks never read a stale closure value.
@@ -107,6 +114,7 @@ export default function App() {
         { id: botId, role: "assistant", content: "", streaming: true },
       ]);
       setBusy(true);
+      setHighlightCite(null);
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -303,12 +311,16 @@ export default function App() {
         repos={repos}
         scope={scope}
         onScopeChange={setScope}
-        onOpenSources={() => setSourcesOpen(true)}
+        onOpenSources={openSources}
       />
       {sourcesOpen && (
         <SourcesPanel
           sources={activeSources}
-          onClose={() => setSourcesOpen(false)}
+          highlight={highlightCite}
+          onClose={() => {
+            setSourcesOpen(false);
+            setHighlightCite(null);
+          }}
         />
       )}
     </div>
