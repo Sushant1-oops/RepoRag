@@ -207,6 +207,24 @@ pip install -r requirements-eval.txt
   `RAGAS_JUDGE_MAX_TOKENS`, `RAGAS_JUDGE_JOB_TIMEOUT`, `RAGAS_METRICS`,
   `RAGAS_SAMPLE`.
 
+## Multi-user accounts
+
+The API requires sign-in: each account gets its own repositories and chat
+history, enforced server-side. Retrieval is filtered per user in Qdrant
+(`user_id` payload condition) and in SQLite (`chats.user_id`); cross-account
+reads, deletes, and chat resumes all return 404. Passwords are PBKDF2-hashed
+(stdlib only) and sessions are HttpOnly cookies.
+
+Env knobs (see [.env.example](.env.example)):
+
+- `ALLOW_SIGNUP=0` freezes registration after you have created the accounts
+  you want.
+- `AUTH_COOKIE_SECURE` overrides cookie security; auto = HTTPS-only everywhere
+  except localhost.
+- `LEGACY_OWNER_NAME` — the account that claims the **pre-auth data** (stored
+  under legacy user 0) when it registers. Set this on a deployed instance
+  *before* registering, and your existing index + chats stay visible.
+
 ## Deploy the backend on AWS (start/stop, not 24/7)
 
 The backend runs in Docker on a single EC2 instance. Everything persistent

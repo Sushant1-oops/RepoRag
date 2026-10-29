@@ -5,17 +5,18 @@ import queue
 import threading
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from repo_rag import db, ingest, rag
+from repo_rag import auth, db, ingest, rag
 
-app = FastAPI(title="Repo RAG", version="2.0.0")
+app = FastAPI(title="Repo RAG", version="2.1.0")
 
 db.init_db()
+ingest.startup_migrations()
 
 _env_origins = [
     origin.strip().rstrip("/")
@@ -34,6 +35,7 @@ app.add_middleware(
     ],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 FRONTEND_DIST = Path(__file__).resolve().parent / "frontend" / "dist"
@@ -57,9 +59,73 @@ def health():
     }
 
 
+# --- authentication -----------------------------------------------------------------
+
+
+class AuthRequest(BaseModel):
+    username: str
+    password: str
+
+
+def _auth_error(e: auth.AuthError) -> HTTPException:
+    return HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/auth/register")
+def register(req: AuthRequest, request: Request, response: Response):
+    """Create an account and sign in (session cookie)."""
+    try:
+        user = auth.register(req.username, req.password)
+    except auth.AuthError as e:
+        raise _auth_error(e) from e
+    auth.issue_session(response, request, user["id"])
+    _maybe_claim_legacy(user)
+    return user
+
+
+@app.post("/api/auth/login")
+def login(req: AuthRequest, request: Request, response: Response):
+    try:
+        user = auth.login(req.username, req.password)
+    except auth.AuthError as e:
+        raise _auth_error(e) from e
+    auth.issue_session(response, request, user["id"])
+    return user
+
+
+@app.post("/api/auth/logout")
+def logout(request: Request, response: Response, user: dict = Depends(auth.get_current_user)):
+    auth.logout(request)
+    auth.clear_session_cookie(response)
+    return {"ok": True}
+
+
+@app.get("/api/auth/me")
+def me(user: dict = Depends(auth.get_current_user)):
+    return user
+
+
+def _maybe_claim_legacy(user: dict) -> None:
+    """On registration, the owner named in LEGACY_OWNER_NAME inherits the
+    pre-auth repos and chats so their existing data stays visible."""
+    owner = os.getenv("LEGACY_OWNER_NAME", "").strip()
+    if not owner or user["username"].lower() != owner.lower():
+        return
+    moved_repos = ingest.claim_legacy_data(user["id"])
+    moved_chats = db.claim_legacy_chats(user["id"])
+    if moved_repos or moved_chats:
+        print(
+            f"legacy data claimed by {user['username']}: "
+            f"{moved_repos} repos, {moved_chats} chats"
+        )
+
+
 @app.get("/api/repos")
-def list_repos():
-    return [{"id": repo_id, **info} for repo_id, info in ingest.load_repos_index().items()]
+def list_repos(user: dict = Depends(auth.get_current_user)):
+    return [
+        {"id": repo["id"], "repo": repo.get("repo_id"), **repo}
+        for repo in ingest.list_repos(user["id"])
+    ]
 
 
 class IndexRequest(BaseModel):
@@ -67,7 +133,7 @@ class IndexRequest(BaseModel):
 
 
 @app.post("/api/repos")
-def index_repo_stream(req: IndexRequest):
+def index_repo_stream(req: IndexRequest, user: dict = Depends(auth.get_current_user)):
     """Clone, filter, chunk and embed a GitHub repo; stream progress via SSE."""
     url = req.url.strip()
     if not url:
@@ -78,7 +144,9 @@ def index_repo_stream(req: IndexRequest):
     def run():
         try:
             stats = ingest.index_repo(
-                url, progress_cb=lambda msg: events.put(("progress", msg))
+                url,
+                progress_cb=lambda msg: events.put(("progress", msg)),
+                user_id=user["id"],
             )
             events.put(("done", stats))
         except Exception as e:
@@ -109,8 +177,10 @@ def index_repo_stream(req: IndexRequest):
 
 
 @app.delete("/api/repos")
-def delete_repo(repo: str):
-    if repo not in ingest.load_repos_index():
+def delete_repo(repo: str, user: dict = Depends(auth.get_current_user)):
+    info = ingest.load_repos_index().get(repo)
+    # 404 both for missing and for other users' repos, so ids are not confirmed
+    if info is None or info.get("user_id") != user["id"]:
         raise HTTPException(status_code=404, detail=f"Repository {repo!r} is not indexed")
     ingest.delete_repo(repo)
     return {"ok": True}
@@ -118,22 +188,22 @@ def delete_repo(repo: str):
 
 
 @app.get("/api/chats")
-def list_chats():
-    """All saved conversations, most recently active first."""
-    return db.list_chats()
+def list_chats(user: dict = Depends(auth.get_current_user)):
+    """The signed-in user's saved conversations, most recently active first."""
+    return db.list_chats(user["id"])
 
 
 @app.get("/api/chats/{chat_id}")
-def get_chat(chat_id: int):
+def get_chat(chat_id: int, user: dict = Depends(auth.get_current_user)):
     chat = db.get_chat(chat_id)
-    if chat is None:
+    if chat is None or chat["user_id"] != user["id"]:
         raise HTTPException(status_code=404, detail=f"Chat {chat_id} not found")
     return chat
 
 
 @app.delete("/api/chats/{chat_id}")
-def delete_chat(chat_id: int):
-    if not db.delete_chat(chat_id):
+def delete_chat(chat_id: int, user: dict = Depends(auth.get_current_user)):
+    if not db.delete_chat(chat_id, user["id"]):
         raise HTTPException(status_code=404, detail=f"Chat {chat_id} not found")
     return {"ok": True}
 
@@ -148,23 +218,26 @@ class ChatRequest(BaseModel):
 
 
 @app.post("/api/chat")
-def chat(req: ChatRequest):
+def chat(req: ChatRequest, user: dict = Depends(auth.get_current_user)):
     """Grounded answer stream, persisted to SQLite so it can be resumed.
 
     SSE events: chat -> sources -> token* -> done / error. The chat event
     carries the chat_id (created on the fly when not supplied) so the client
-    can keep following the same conversation.
+    can keep following the same conversation. Retrieval is scoped to the
+    signed-in user's repositories.
     """
     question = req.question.strip()
     if not question:
         raise HTTPException(status_code=400, detail="question is required")
-    if req.chat_id is not None and db.get_chat(req.chat_id) is None:
-        raise HTTPException(status_code=404, detail=f"Chat {req.chat_id} not found")
+    if req.chat_id is not None:
+        chat = db.get_chat(req.chat_id)
+        if chat is None or chat["user_id"] != user["id"]:
+            raise HTTPException(status_code=404, detail=f"Chat {req.chat_id} not found")
 
     def stream():
         chat_id = req.chat_id
         if chat_id is None:
-            chat_id = db.create_chat(question[:80])["id"]
+            chat_id = db.create_chat(question[:80], user["id"])["id"]
         yield sse("chat", {"chat_id": chat_id})
         history = db.chat_history(chat_id)
 
@@ -193,6 +266,7 @@ def chat(req: ChatRequest):
                 use_hybrid=req.use_hybrid,
                 use_reranker=req.use_reranker,
                 history=history,
+                user_id=user["id"],
             ):
                 if event == "sources":
                     sources = payload

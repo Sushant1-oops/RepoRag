@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Database, GitBranch, Plus, Trash } from "../icons";
 import { SectionLabel, Spinner, Switch } from "./ui";
-import type { ChatSummary, Health, Repo, Settings } from "../types";
+import type { ChatSummary, Health, Repo, Settings, User } from "../types";
 
 function relTime(iso: string): string {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -13,6 +13,8 @@ function relTime(iso: string): string {
 }
 
 interface SidebarProps {
+  user: User;
+  onLogout: () => Promise<void> | void;
   repos: Repo[];
   health: Health | null;
   scope: string | null;
@@ -31,6 +33,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({
+  user,
+  onLogout,
   repos,
   health,
   scope,
@@ -159,7 +163,7 @@ export default function Sidebar({
                         selected ? "text-zinc-900" : "text-zinc-700"
                       }`}
                     >
-                      {repo.id.replace("__", "/")}
+                      {repo.repo ?? repo.id.replace(/__/g, "/")}
                     </span>
                     <span className="block font-mono text-[10.5px] text-zinc-400">
                       {repo.files} files · {repo.chunks} chunks
@@ -295,6 +299,21 @@ export default function Sidebar({
 
 
       <div className="border-t border-zinc-200 px-4 py-3">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-semibold text-white uppercase">
+            {user.username.slice(0, 2)}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-xs font-medium text-zinc-700">
+            {user.username}
+          </span>
+          <button
+            type="button"
+            onClick={() => void onLogout()}
+            className="shrink-0 rounded px-1.5 py-1 text-[11px] text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800"
+          >
+            Sign out
+          </button>
+        </div>
         <div className="flex items-center gap-2 text-[11px] text-zinc-500">
           <span
             className={`h-1.5 w-1.5 shrink-0 rounded-full ${

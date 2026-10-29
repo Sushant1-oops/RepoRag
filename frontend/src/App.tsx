@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import AuthGate from "./components/AuthGate";
 import ChatPanel from "./components/ChatPanel";
 import Sidebar from "./components/Sidebar";
 import SourcesPanel from "./components/SourcesPanel";
@@ -8,8 +9,10 @@ import {
   fetchChat,
   fetchChats,
   fetchHealth,
+  fetchMe,
   fetchRepos,
   indexRepo,
+  logout,
   streamChat,
 } from "./api";
 import type {
@@ -19,12 +22,20 @@ import type {
   Repo,
   Settings,
   Source,
+  User,
 } from "./types";
 
 let seq = 0;
 const genId = () => `m${Date.now().toString(36)}-${seq++}`;
 
+// display name for a repo id; pre-auth fallback decodes the safe id
+const repoName = (id: string) => id.replace(/__/g, "/");
+
 export default function App() {
+  // session: resolved once on mount; nothing renders until it is known
+  const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+
   const [repos, setRepos] = useState<Repo[]>([]);
   const [health, setHealth] = useState<Health | null>(null);
   const [scope, setScope] = useState<string | null>(null); // repo id, null = all
@@ -71,9 +82,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    fetchMe()
+      .then(setUser)
+      .catch(() => setUser(null))
+      .finally(() => setAuthReady(true));
+  }, []);
+
+  useEffect(() => {
     void refresh();
     void refreshChats();
-  }, [refresh, refreshChats]);
+  }, [refresh, refreshChats, user]);
 
   const ask = useCallback(
     async (question: string) => {
@@ -171,7 +189,7 @@ export default function App() {
 
   const removeRepo = useCallback(
     async (id: string) => {
-      if (!window.confirm(`Remove ${id.replace("__", "/")} from the index?`)) {
+      if (!window.confirm(`Remove ${repoName(id)} from the index?`)) {
         return;
       }
       try {
@@ -222,15 +240,42 @@ export default function App() {
     [newChat, refreshChats]
   );
 
+  const signOut = useCallback(async () => {
+    try {
+      await logout();
+    } finally {
+      // drop all state from the previous account before the gate re-renders
+      setActiveChat(null);
+      setMessages([]);
+      setRepos([]);
+      setChats([]);
+      setScope(null);
+      setUser(null);
+    }
+  }, [setActiveChat]);
+
   const activeSources =
     [...messages]
       .reverse()
       .find((m) => m.role === "assistant" && (m.sources?.length ?? 0) > 0)
       ?.sources ?? [];
 
+  if (!authReady) {
+    return (
+      <div className="flex h-screen items-center justify-center text-sm text-zinc-400">
+        Loading…
+      </div>
+    );
+  }
+  if (!user) {
+    return <AuthGate onAuthed={setUser} />;
+  }
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar
+        user={user}
+        onLogout={signOut}
         repos={repos}
         health={health}
         scope={scope}

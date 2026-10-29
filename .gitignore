@@ -8,3 +8,6 @@ __pycache__/
 # AWS deploy secrets and instance metadata
 *.pem
 deploy/aws.json
+
+# pre-auth data snapshot kept for restore safety
+data_backup/

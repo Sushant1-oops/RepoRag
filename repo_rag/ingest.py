@@ -143,6 +143,117 @@ def collection_safe_id(repo_id: str) -> str:
     return repo_id.replace("/", "__")
 
 
+# --- user scoping -----------------------------------------------------------------
+# Registry keys and point payloads carry the owning user:  "u<id>__owner__name".
+# Two users can index the same GitHub repo without colliding on point ids
+# (chunk ids embed the scoped safe id) or on registry keys.
+
+LEGACY_USER_ID = 0  # pre-auth data lives here until claimed
+_USER_KEY_RE = re.compile(r"^u(\d+)__(.+)$")
+
+
+def user_scoped_safe_id(repo_id: str, user_id: int) -> str:
+    """Registry/payload key for one user's copy of a repo."""
+    return f"u{user_id}__{collection_safe_id(repo_id)}"
+
+
+def scope_filter(
+    safe_repo: str | None = None, user_id: int | None = None
+) -> models.Filter | None:
+    """Qdrant filter narrowing to one repo and/or one user's chunks."""
+    must = []
+    if safe_repo:
+        must.append(
+            models.FieldCondition(key="repo", match=models.MatchValue(value=safe_repo))
+        )
+    if user_id is not None:
+        must.append(
+            models.FieldCondition(key="user_id", match=models.MatchValue(value=user_id))
+        )
+    return models.Filter(must=must) if must else None
+
+
+_migration_done = False
+
+
+def _read_registry() -> dict:
+    if REPOS_INDEX_FILE.exists():
+        return json.loads(REPOS_INDEX_FILE.read_text(encoding="utf-8"))
+    return {}
+
+
+def _migrate_registry_and_payloads() -> None:
+    """One-time move of the pre-auth registry into the scoped layout.
+
+    Old entries are keyed by the raw repo id ("owner/name") with no user
+    info; they move under legacy user 0, and the matching Qdrant payloads
+    get the new "repo" value plus a user_id stamp so per-user filters work.
+    Idempotent: fully-migrated entries are left untouched.
+    """
+    index = _read_registry()
+    if not index:
+        return
+    new_index: dict = {}
+    rewrites: list[tuple[str, str, int]] = []  # (old payload repo value, new key, user)
+    changed = False
+    for key, info in index.items():
+        if not isinstance(info, dict):
+            new_index[key] = info
+            continue
+        match = _USER_KEY_RE.match(key)
+        user_id = info.get("user_id")
+        if user_id is None:
+            user_id = int(match.group(1)) if match else LEGACY_USER_ID
+        raw_repo = info.get("repo_id")
+        if raw_repo is None:
+            raw_repo = (
+                repo_id_from_url(info["url"]) if info.get("url")
+                else (key.split("__", 1)[1].replace("__", "/") if match else key)
+            )
+        safe_key = user_scoped_safe_id(raw_repo, user_id)
+        new_index[safe_key] = {**info, "repo_id": raw_repo, "user_id": user_id}
+        if safe_key != key or "user_id" not in info or "repo_id" not in info:
+            changed = True
+            # old points may carry either the raw safe id or the scoped key
+            rewrites.append((collection_safe_id(key), safe_key, user_id))
+            if _USER_KEY_RE.match(key):
+                rewrites.append((key, safe_key, user_id))
+    if not changed:
+        return
+    save_repos_index(new_index)
+    with store() as client:
+        if not client.collection_exists(COLLECTION_NAME):
+            return
+        for old_value, new_key, user_id in rewrites:
+            client.set_payload(
+                COLLECTION_NAME,
+                payload={"repo": new_key, "user_id": user_id},
+                points=models.Filter(
+                    must=[models.FieldCondition(
+                        key="repo", match=models.MatchValue(value=old_value))]
+                ),
+            )
+        # any point still missing a user_id belongs to the legacy namespace
+        client.set_payload(
+            COLLECTION_NAME,
+            payload={"user_id": LEGACY_USER_ID},
+            points=models.Filter(must_not=[models.FieldCondition(key="user_id")]),
+        )
+
+
+def _ensure_migrated() -> None:
+    global _migration_done
+    if _migration_done:
+        return
+    _migration_done = True
+    _migrate_registry_and_payloads()
+
+
+def startup_migrations() -> None:
+    """Run the registry/payload migration once, e.g. at server start-up."""
+    _ensure_migrated()
+
+
 def clone_repo(url: str) -> Path:
     temp_dir = Path(tempfile.mkdtemp(prefix="repo_rag_"))
     try:
@@ -223,9 +334,8 @@ def chunk_text(text: str):
 
 
 def load_repos_index() -> dict:
-    if REPOS_INDEX_FILE.exists():
-        return json.loads(REPOS_INDEX_FILE.read_text(encoding="utf-8"))
-    return {}
+    _ensure_migrated()
+    return _read_registry()
 
 
 def save_repos_index(index: dict) -> None:
@@ -233,12 +343,24 @@ def save_repos_index(index: dict) -> None:
     REPOS_INDEX_FILE.write_text(json.dumps(index, indent=2), encoding="utf-8")
 
 
-def fetch_chunks(repo_id: str | None = None):
-    """All stored chunks as (chunk_ids, texts, metas) for one repo or the whole store."""
+def list_repos(user_id: int) -> list[dict]:
+    """Registry entries owned by one user; `id` is the user-scoped safe key
+    and `repo` the display name ("owner/name")."""
+    return [
+        {"id": key, **info}
+        for key, info in load_repos_index().items()
+        if isinstance(info, dict) and info.get("user_id") == user_id
+    ]
+
+
+def fetch_chunks(repo_id: str | None = None, user_id: int | None = None):
+    """Stored chunks as (chunk_ids, texts, metas) for one repo and/or one user."""
     with store() as client:
         if not client.collection_exists(COLLECTION_NAME):
             return [], [], []
-        scroll_filter = repo_filter(collection_safe_id(repo_id)) if repo_id else None
+        scroll_filter = scope_filter(
+            collection_safe_id(repo_id) if repo_id else None, user_id
+        )
         ids, docs, metas = [], [], []
         offset = None
         while True:
@@ -260,6 +382,41 @@ def fetch_chunks(repo_id: str | None = None):
         return ids, docs, metas
 
 
+def claim_legacy_data(new_user_id: int) -> int:
+    """Reassign the legacy (pre-auth) repos to a real user; returns the count.
+
+    Registry keys move from u0__... to u<new>__... and the affected Qdrant
+    payloads follow, so retrieval scoped to the new user finds the chunks.
+    """
+    index = _read_registry()
+    renames: list[tuple[str, str]] = []
+    for key, info in list(index.items()):
+        if not isinstance(info, dict) or info.get("user_id") != LEGACY_USER_ID:
+            continue
+        raw = info.get("repo_id") or repo_id_from_url(info.get("url", "")) or key
+        new_key = user_scoped_safe_id(raw, new_user_id)
+        index.pop(key)
+        index[new_key] = {**info, "repo_id": raw, "user_id": new_user_id}
+        renames.append((key, new_key))
+    if not renames:
+        return 0
+    save_repos_index(index)
+    with store() as client:
+        if not client.collection_exists(COLLECTION_NAME):
+            return len(renames)
+        for old_key, new_key in renames:
+            for old_value in {old_key, collection_safe_id(old_key)}:
+                client.set_payload(
+                    COLLECTION_NAME,
+                    payload={"repo": new_key, "user_id": new_user_id},
+                    points=models.Filter(
+                        must=[models.FieldCondition(
+                            key="repo", match=models.MatchValue(value=old_value))]
+                    ),
+                )
+    return len(renames)
+
+
 def delete_repo(repo_id: str) -> None:
     with store() as client:
         if client.collection_exists(COLLECTION_NAME):
@@ -274,10 +431,12 @@ def delete_repo(repo_id: str) -> None:
     save_repos_index(index)
 
 
-def index_repo(url: str, progress_cb=None) -> dict:
-    """Clone, chunk, embed and index a repository. Returns summary stats."""
+def index_repo(url: str, progress_cb=None, user_id: int = LEGACY_USER_ID) -> dict:
+    """Clone, chunk, embed and index a repository for one user. Returns stats."""
     repo_id = repo_id_from_url(url)
-    safe_id = collection_safe_id(repo_id)
+    # every artifact (chunk ids, payload "repo", registry key) is namespaced
+    # by the user so two users can index the same repo independently
+    safe_id = user_scoped_safe_id(repo_id, user_id)
     progress = progress_cb or (lambda msg: None)
 
     progress(f"Cloning {repo_id} ...")
@@ -301,7 +460,7 @@ def index_repo(url: str, progress_cb=None) -> dict:
                     payload={
                         "chunk_id": cid, "repo": meta["repo"], "file": meta["file"],
                         "start_line": meta["start_line"], "end_line": meta["end_line"],
-                        "text": doc,
+                        "text": doc, "user_id": user_id,
                     },
                 )
                 for cid, doc, meta, vector
@@ -333,7 +492,10 @@ def index_repo(url: str, progress_cb=None) -> dict:
             upsert_batch()
 
         index = load_repos_index()
-        index[repo_id] = {"url": url, "files": file_count, "chunks": chunk_count}
+        index[safe_id] = {
+            "url": url, "files": file_count, "chunks": chunk_count,
+            "repo_id": repo_id, "user_id": user_id,
+        }
         save_repos_index(index)
         return {"repo": repo_id, "files": file_count, "chunks": chunk_count}
     finally:

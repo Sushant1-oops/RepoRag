@@ -8,6 +8,7 @@ import type {
   IndexStats,
   Repo,
   Source,
+  User,
 } from "./types";
 
 // Backend origin, taken from VITE_API_URL at build time. Empty in dev, so
@@ -19,6 +20,11 @@ const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
 
 function url(path: string): string {
   return `${API_BASE}${path}`;
+}
+
+// session cookies must ride along on every call, including cross-origin ones
+function request(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(url(path), { credentials: "include", ...init });
 }
 
 
@@ -59,7 +65,7 @@ async function postSse(
   onEvent: (event: string, data: unknown) => void,
   signal?: AbortSignal
 ): Promise<void> {
-  const res = await fetch(url(path), {
+  const res = await request(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -81,19 +87,19 @@ async function errorMessage(res: Response): Promise<string> {
 
 
 export async function fetchHealth(): Promise<Health> {
-  const res = await fetch(url("/api/health"));
+  const res = await request("/api/health");
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as Health;
 }
 
 export async function fetchRepos(): Promise<Repo[]> {
-  const res = await fetch(url("/api/repos"));
+  const res = await request("/api/repos");
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as Repo[];
 }
 
 export async function deleteRepo(id: string): Promise<void> {
-  const res = await fetch(url(`/api/repos?repo=${encodeURIComponent(id)}`), {
+  const res = await request(`/api/repos?repo=${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(await errorMessage(res));
@@ -102,19 +108,54 @@ export async function deleteRepo(id: string): Promise<void> {
 
 
 export async function fetchChats(): Promise<ChatSummary[]> {
-  const res = await fetch(url("/api/chats"));
+  const res = await request("/api/chats");
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as ChatSummary[];
 }
 
 export async function fetchChat(id: number): Promise<ChatRecord> {
-  const res = await fetch(url(`/api/chats/${id}`));
+  const res = await request(`/api/chats/${id}`);
   if (!res.ok) throw new Error(await errorMessage(res));
   return (await res.json()) as ChatRecord;
 }
 
 export async function deleteChat(id: number): Promise<void> {
-  const res = await fetch(url(`/api/chats/${id}`), { method: "DELETE" });
+  const res = await request(`/api/chats/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error(await errorMessage(res));
+}
+
+
+
+// --- authentication -----------------------------------------------------------
+
+async function authCall(path: string, username: string, password: string): Promise<User> {
+  const res = await request(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!res.ok) throw new Error(await errorMessage(res));
+  return (await res.json()) as User;
+}
+
+/** The signed-in user, or null when the session cookie is absent/expired. */
+export async function fetchMe(): Promise<User | null> {
+  const res = await request("/api/auth/me");
+  if (res.status === 401) return null;
+  if (!res.ok) throw new Error(await errorMessage(res));
+  return (await res.json()) as User;
+}
+
+export function login(username: string, password: string): Promise<User> {
+  return authCall("/api/auth/login", username, password);
+}
+
+export function register(username: string, password: string): Promise<User> {
+  return authCall("/api/auth/register", username, password);
+}
+
+export async function logout(): Promise<void> {
+  const res = await request("/api/auth/logout", { method: "POST" });
   if (!res.ok) throw new Error(await errorMessage(res));
 }
 

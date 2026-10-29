@@ -6,8 +6,15 @@ export interface Health {
   model: string;
 }
 
+export interface User {
+  id: number;
+  username: string;
+}
+
 export interface Repo {
   id: string; 
+  /** display name ("owner/name") — `id` is the user-scoped internal key */
+  repo?: string;
   url: string;
   files: number;
   chunks: number;

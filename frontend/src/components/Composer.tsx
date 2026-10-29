@@ -58,7 +58,7 @@ export default function Composer({
             <option value="">All repositories</option>
             {repos.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.id.replace("__", "/")}
+                {r.repo ?? r.id.replace(/__/g, "/")}
               </option>
             ))}
           </select>

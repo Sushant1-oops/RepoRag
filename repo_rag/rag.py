@@ -87,6 +87,7 @@ def retrieve(
     repo: str | None = None,
     use_hybrid: bool = True,
     use_reranker: bool = True,
+    user_id: int | None = None,
 ) -> list[dict]:
     """Hybrid retrieval: BM25 keyword + vector semantic, fused, then reranked."""
     return retrieval.hybrid_retrieve(
@@ -95,22 +96,25 @@ def retrieve(
         repo=repo,
         use_hybrid=use_hybrid,
         use_reranker=use_reranker,
+        user_id=user_id,
     )
 
 
-def _neighbor_texts(hit: dict) -> list[str]:
+def _neighbor_texts(hit: dict, user_id: int | None = None) -> list[str]:
     """Adjacent same-file chunk texts, with the 'File: ...' prefix stripped."""
     repo = hit.get("repo")
     if not repo:
         return []
     texts = retrieval.neighbor_chunks(
         repo, hit["file"], hit["start_line"], hit["end_line"],
-        before=NEIGHBORS_PER_HIT, after=NEIGHBORS_PER_HIT,
+        before=NEIGHBORS_PER_HIT, after=NEIGHBORS_PER_HIT, user_id=user_id,
     )
     return [text.split("\n", 1)[-1].strip() for text in texts]
 
 
-def _context_parts(hits: list[dict]) -> list[str]:
+def _context_parts(
+    hits: list[dict], user_id: int | None = None
+) -> list[str]:
     """Per-hit context blocks: header + chunk text + neighbor sub-blocks.
 
     Each hit is preceded by a header with the exact file path and line range
@@ -123,7 +127,7 @@ def _context_parts(hits: list[dict]) -> list[str]:
             f"[Chunk {i} | {hit['file']}:{hit['start_line']}-{hit['end_line']}]",
             hit["text"].strip(),
         ]
-        for j, neighbor in enumerate(_neighbor_texts(hit), start=1):
+        for j, neighbor in enumerate(_neighbor_texts(hit, user_id), start=1):
             blocks.append(
                 f"[Chunk {i}.{j} | {hit['file']} — adjacent code]\n{neighbor}"
             )
@@ -132,12 +136,14 @@ def _context_parts(hits: list[dict]) -> list[str]:
 
 
 def _budgeted_context(
-    hits: list[dict], max_chars: int = MAX_CONTEXT_CHARS
+    hits: list[dict],
+    max_chars: int = MAX_CONTEXT_CHARS,
+    user_id: int | None = None,
 ) -> tuple[str, list[str]]:
     """Context string plus the exact per-hit blocks that fit the budget."""
     parts: list[str] = []
     used = 0
-    for block in _context_parts(hits):
+    for block in _context_parts(hits, user_id):
         if parts and used + len(block) > max_chars:
             break  # keep the best-scoring chunks within the budget
         parts.append(block)
@@ -145,9 +151,11 @@ def _budgeted_context(
     return "\n\n---\n\n".join(parts), parts
 
 
-def build_context(hits: list[dict], max_chars: int = MAX_CONTEXT_CHARS) -> str:
+def build_context(
+    hits: list[dict], max_chars: int = MAX_CONTEXT_CHARS, user_id: int | None = None
+) -> str:
     """Assemble a size-budgeted, neighbor-expanded context block."""
-    return _budgeted_context(hits, max_chars)[0]
+    return _budgeted_context(hits, max_chars, user_id)[0]
 
 
 def extract_citations(answer: str, hits: list[dict]) -> list[str]:
@@ -181,16 +189,18 @@ def stream_answer(
     use_hybrid: bool = True,
     use_reranker: bool = True,
     history: list[dict] | None = None,
+    user_id: int | None = None,
 ):
     """Full grounded RAG step as a stream of (event, payload) tuples.
 
     `history` is an optional list of {role, content} dicts (oldest first)
-    giving the model continuity for follow-up questions.
+    giving the model continuity for follow-up questions. `user_id` scopes
+    retrieval to one account's indexed repos.
     """
     t0 = time.perf_counter()
     hits = retrieve(
         question, n_results=n_results, repo=repo,
-        use_hybrid=use_hybrid, use_reranker=use_reranker,
+        use_hybrid=use_hybrid, use_reranker=use_reranker, user_id=user_id,
     )
     retrieval_ms = int((time.perf_counter() - t0) * 1000)
     yield ("sources", hits)
@@ -204,7 +214,7 @@ def stream_answer(
         })
         return
 
-    context, context_parts = _budgeted_context(hits)
+    context, context_parts = _budgeted_context(hits, user_id=user_id)
     prompt = _history_block(history) + USER_PROMPT.format(
         n_chunks=len(hits), context=context, question=question
     )
@@ -266,6 +276,7 @@ def answer_question(
     use_hybrid: bool = True,
     use_reranker: bool = True,
     history: list[dict] | None = None,
+    user_id: int | None = None,
 ) -> dict:
     """Non-streaming convenience wrapper around stream_answer."""
     answer_parts, sources = [], []
@@ -273,6 +284,7 @@ def answer_question(
     for event, payload in stream_answer(
         question, n_results=n_results, repo=repo,
         use_hybrid=use_hybrid, use_reranker=use_reranker, history=history,
+        user_id=user_id,
     ):
         if event == "sources":
             sources = payload

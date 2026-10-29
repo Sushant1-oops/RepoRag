@@ -1,3 +1,2 @@
-INFO:     127.0.0.1:53984 - "GET /docs HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49677 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50525 - "GET /api/health HTTP/1.1" 200 OK
+CORS ALLOWED ORIGINS: []
+INFO:     127.0.0.1:56233 - "GET /api/health HTTP/1.1" 200 OK

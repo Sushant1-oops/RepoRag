@@ -6,7 +6,7 @@ from rank_bm25 import BM25Okapi
 
 from .ingest import (
     COLLECTION_NAME, chunk_count, collection_safe_id, encode, fetch_chunks,
-    get_client, load_repos_index, repo_filter, store,
+    get_client, load_repos_index, scope_filter, store,
 )
 
 CANDIDATES_PER_METHOD = 24  
@@ -39,9 +39,9 @@ def _index_version() -> tuple:
 
 
 @lru_cache(maxsize=8)
-def _keyword_index(safe_repo: str | None, version: tuple):
-    """Build a BM25 index over the stored chunks for one repo (or all)."""
-    ids, docs, metas = fetch_chunks(safe_repo)
+def _keyword_index(safe_repo: str | None, version: tuple, user_id: int | None = None):
+    """Build a BM25 index over the stored chunks for one repo (or all of a user's)."""
+    ids, docs, metas = fetch_chunks(safe_repo, user_id)
     tokenized = [_tokenize(doc) for doc in docs]
     if not docs or max(map(len, tokenized), default=0) == 0:
         return None, [], [], []
@@ -49,13 +49,18 @@ def _keyword_index(safe_repo: str | None, version: tuple):
 
 
 def semantic_search(
-    question: str, k: int = CANDIDATES_PER_METHOD, repo: str | None = None
+    question: str,
+    k: int = CANDIDATES_PER_METHOD,
+    repo: str | None = None,
+    user_id: int | None = None,
 ) -> list[dict]:
     """Dense vector search over the indexed chunks (Qdrant cosine)."""
     total = chunk_count()
     if total == 0:
         return []
-    query_filter = repo_filter(collection_safe_id(repo)) if repo else None
+    query_filter = scope_filter(
+        collection_safe_id(repo) if repo else None, user_id
+    )
     vector = encode([question])[0]
     with store() as client:
         result = client.query_points(
@@ -79,11 +84,14 @@ def semantic_search(
 
 
 def keyword_search(
-    question: str, k: int = CANDIDATES_PER_METHOD, repo: str | None = None
+    question: str,
+    k: int = CANDIDATES_PER_METHOD,
+    repo: str | None = None,
+    user_id: int | None = None,
 ) -> list[dict]:
     """Sparse BM25 full-text search; exact identifiers rank high."""
     safe_repo = collection_safe_id(repo) if repo else None
-    bm25, ids, docs, metas = _keyword_index(safe_repo, _index_version())
+    bm25, ids, docs, metas = _keyword_index(safe_repo, _index_version(), user_id)
     if bm25 is None:
         return []
     query_tokens = _tokenize(question)
@@ -116,6 +124,7 @@ def neighbor_chunks(
     end_line: int,
     before: int = 1,
     after: int = 1,
+    user_id: int | None = None,
 ) -> list[str]:
     """Texts of the adjacent chunks (same file) for richer LLM context.
 
@@ -124,7 +133,7 @@ def neighbor_chunks(
     nearest span strictly above/below the hit rather than exact line equality.
     """
     safe_repo = collection_safe_id(repo)
-    _, _, docs, metas = _keyword_index(safe_repo, _index_version())
+    _, _, docs, metas = _keyword_index(safe_repo, _index_version(), user_id)
     spans = [
         (meta["start_line"], meta["end_line"], doc)
         for doc, meta in zip(docs, metas)
@@ -154,12 +163,14 @@ def search(
     k: int = CANDIDATES_PER_METHOD,
     repo: str | None = None,
     use_hybrid: bool = True,
+    user_id: int | None = None,
 ) -> list[dict]:
     """Run semantic (+ keyword) retrieval concurrently and fuse the rankings."""
     with ThreadPoolExecutor(max_workers=2) as pool:
-        semantic_future = pool.submit(semantic_search, question, k, repo)
+        semantic_future = pool.submit(semantic_search, question, k, repo, user_id)
         keyword_future = (
-            pool.submit(keyword_search, question, k, repo) if use_hybrid else None
+            pool.submit(keyword_search, question, k, repo, user_id)
+            if use_hybrid else None
         )
         semantic_hits = semantic_future.result()
         keyword_hits = keyword_future.result() if keyword_future else []
@@ -223,12 +234,13 @@ def hybrid_retrieve(
     repo: str | None = None,
     use_hybrid: bool = True,
     use_reranker: bool = True,
+    user_id: int | None = None,
 ) -> list[dict]:
     """Full retrieval pipeline: parallel candidates -> RRF fusion -> cross-encoder."""
     question = question.strip()
     if not question:
         return []
-    candidates = search(question, repo=repo, use_hybrid=use_hybrid)
+    candidates = search(question, repo=repo, use_hybrid=use_hybrid, user_id=user_id)
     if not candidates:
         return []
     if use_reranker:
