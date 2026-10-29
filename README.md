@@ -221,9 +221,16 @@ Env knobs (see [.env.example](.env.example)):
   you want.
 - `AUTH_COOKIE_SECURE` overrides cookie security; auto = HTTPS-only everywhere
   except localhost.
+- `AUTH_COOKIE_SAMESITE=none` — only needed when the frontend lives on a
+  **different site** (e.g. a Vercel deployment calling this backend over
+  another domain); otherwise browsers never store the session cookie.
+  Same-origin setups (this backend serving `frontend/dist`) keep the default
+  `lax`.
 - `LEGACY_OWNER_NAME` — the account that claims the **pre-auth data** (stored
-  under legacy user 0) when it registers. Set this on a deployed instance
-  *before* registering, and your existing index + chats stay visible.
+  under legacy user 0) when it registers **or signs in**. Set this on a
+  deployed instance and your existing index + chats stay visible. The claim
+  is idempotent, so a mismatched first registration can be fixed by setting
+  the exact username and logging in again.
 
 ## Deploy the backend on AWS (start/stop, not 24/7)
 

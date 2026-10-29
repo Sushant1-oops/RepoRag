@@ -62,15 +62,17 @@ export default function App() {
   }, []);
 
   const refresh = useCallback(async () => {
-    try {
-      const [repoList, h] = await Promise.all([fetchRepos(), fetchHealth()]);
+    // allSettled: a 401 on repos must not fake a "backend offline" state
+    const [repoResult, healthResult] = await Promise.allSettled([
+      fetchRepos(),
+      fetchHealth(),
+    ]);
+    if (repoResult.status === "fulfilled") {
+      const repoList = repoResult.value;
       setRepos(repoList);
-      setHealth(h);
-      
       setScope((s) => (s && repoList.some((r) => r.id === s) ? s : null));
-    } catch {
-      setHealth(null);
     }
+    setHealth(healthResult.status === "fulfilled" ? healthResult.value : null);
   }, []);
 
   const refreshChats = useCallback(async () => {

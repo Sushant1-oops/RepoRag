@@ -90,6 +90,9 @@ def login(req: AuthRequest, request: Request, response: Response):
     except auth.AuthError as e:
         raise _auth_error(e) from e
     auth.issue_session(response, request, user["id"])
+    # claim also on login (idempotent): recovers owners who registered before
+    # LEGACY_OWNER_NAME was set to their exact username
+    _maybe_claim_legacy(user)
     return user
 
 
@@ -106,8 +109,9 @@ def me(user: dict = Depends(auth.get_current_user)):
 
 
 def _maybe_claim_legacy(user: dict) -> None:
-    """On registration, the owner named in LEGACY_OWNER_NAME inherits the
-    pre-auth repos and chats so their existing data stays visible."""
+    """When the user signing in or registering is the owner named in
+    LEGACY_OWNER_NAME, they inherit the pre-auth repos and chats so their
+    existing data stays visible. Idempotent once claimed."""
     owner = os.getenv("LEGACY_OWNER_NAME", "").strip()
     if not owner or user["username"].lower() != owner.lower():
         return

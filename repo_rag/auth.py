@@ -26,6 +26,12 @@ _PBKDF2_ITERATIONS = 200_000
 _ALLOW_SIGNUP = os.getenv("ALLOW_SIGNUP", "1") != "0"
 # Cookie `secure` override; auto (default) uses secure for any non-localhost host
 _COOKIE_SECURE_ENV = os.getenv("AUTH_COOKIE_SECURE", "")
+# Cookie SameSite override. Default "lax" is right for same-origin apps; a
+# frontend on another site (e.g. Vercel calling this backend) needs "none",
+# otherwise browsers never store/send the session cookie cross-site.
+_COOKIE_SAMESITE = os.getenv("AUTH_COOKIE_SAMESITE", "lax").strip().lower()
+if _COOKIE_SAMESITE not in ("lax", "strict", "none"):
+    _COOKIE_SAMESITE = "lax"
 
 _USERNAME_RE = re.compile(r"^[a-zA-Z0-9_.-]{3,32}$")
 
@@ -69,13 +75,16 @@ def cookie_secure_for(request: Request) -> bool:
 
 
 def set_session_cookie(response: Response, token: str, request: Request) -> None:
+    # SameSite=None is silently rejected by browsers unless the cookie is also
+    # Secure, so force it on for that case.
+    secure = cookie_secure_for(request) or _COOKIE_SAMESITE == "none"
     response.set_cookie(
         key=SESSION_COOKIE,
         value=token,
         max_age=SESSION_TTL_DAYS * 24 * 3600,
         httponly=True,
-        samesite="lax",
-        secure=cookie_secure_for(request),
+        samesite=_COOKIE_SAMESITE,
+        secure=secure,
         path="/",
     )
 
